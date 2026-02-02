@@ -5,6 +5,6 @@ class Tip(Base):
     __tablename__ = 'tips'
 
     id = Column(Integer, primary_key=True)
-    tip = Column(String(280, nullable=False))
+    tip = Column(String(280), nullable=False)
 
     
