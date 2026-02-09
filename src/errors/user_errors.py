@@ -1,7 +1,39 @@
 from app_error import AppError
 from fastapi import status
 
+class InvalidUsernameError(AppError):
+    status_code = status.HTTP_400_BAD_REQUEST
+    status_name = 'INVALID_USERNAME'
+    message = 'O Username que você tentou inserir é inválido. Utilize apenas letras, números, . e _.'
+    
+
+
+class InvalidEmailError(AppError):
+    status_code = status.HTTP_400_BAD_REQUEST
+    status_name = 'INVALID_EMAIL'
+    message = 'O Email que você tentou inserir é inválido ou inexistente. Por favor, tente novamente.'
+
+
+    
 class InvalidCredentialsError(AppError):
     status_code = status.HTTP_401_UNAUTHORIZED
-    status_name = 'UNAUTHORIZED'
+    status_name = 'INVALID_CREDENTIALS'
     message = 'As credenciais do usuário estão incorretas.'
+
+
+
+class UsernameAlreadyExistsError(AppError):
+    status_code = status.HTTP_409_CONFLICT
+    status_name = 'USERNAME_ALREADY_EXISTS'
+    message = 'O Username que você tentou inserir já existe no sistema. Faça login ou tente novamente.'
+    
+    
+
+class EmailAlreadyExistsError(AppError):
+    status_code = status.HTTP_409_CONFLICT
+    status_name = 'EMAIL_ALREADY_EXISTS'
+    message = 'O Email que você tentou inserir já existe no sistema. Faça login ou tente novamente.'
+
+
+
+

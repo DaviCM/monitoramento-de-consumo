@@ -12,8 +12,8 @@ class User(Base):
     password = Column(String(255), nullable=False)
     created_at = Column(DateTime, server_default=func.now())
 
-    user_consumption_history = relationship('ConsumptionHistory', back_populates='goals.creator_id')
-    user_consumption_simulations = relationship('ConsumptionSimulation', back_populates='goals.creator_id')
+    user_consumption_history = relationship('ConsumptionHistory', back_populates='consumption_history.creator_id')
+    user_consumption_simulations = relationship('ConsumptionSimulation', back_populates='consumption_simulations.creator_id')
     user_goals = relationship('Goal', back_populates='goals.creator_id')
     
     
