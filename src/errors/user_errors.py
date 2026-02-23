@@ -35,5 +35,8 @@ class EmailAlreadyExistsError(AppError):
     message = 'O Email que você tentou inserir já existe no sistema. Faça login ou tente novamente.'
 
 
-
+class UserNotFoundError(AppError):
+    status_code = status.HTTP_404_NOT_FOUND
+    status_name = 'USER_NOT_FOUND'
+    message = 'O usuário requisitado não foi encontrado.'
 

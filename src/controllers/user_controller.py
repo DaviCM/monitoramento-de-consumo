@@ -41,7 +41,7 @@ def login(user_email, user_password):
         returned_user = session.scalar(stmt)
         
     if returned_user == None:
-        raise InvalidCredentialsError
+        raise UserNotFoundError
     
     hashed_password = returned_user.password
     
@@ -65,4 +65,18 @@ def edit_user_username(current_user: User, new_username):
         
 
 def edit_user_password(current_user: User, new_password):
-    pass
+    with get_session():
+        current_user.password = argon2.hash(new_password)
+        
+
+def delete_self(current_user: User):
+    stmt = select(User).where(User.id == current_user.id)
+    with get_session() as session:
+        returned_user = session.scalar(stmt)
+        
+        if returned_user == None:
+            raise UserNotFoundError
+        else:
+            session.delete(returned_user)
+    
+    
