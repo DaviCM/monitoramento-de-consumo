@@ -18,7 +18,14 @@ class InvalidEmailError(AppError):
 class InvalidCredentialsError(AppError):
     status_code = status.HTTP_401_UNAUTHORIZED
     status_name = 'INVALID_CREDENTIALS'
-    message = 'As credenciais do usuário estão incorretas.'
+    message = 'As credenciais do usuário estão incorretas. Por favor, tente novamente.'
+
+
+
+class UserNotFoundError(AppError):
+    status_code = status.HTTP_404_NOT_FOUND
+    status_name = 'USER_NOT_FOUND'
+    message = 'O usuário requisitado não foi encontrado. Por favor, tente novamente.'
 
 
 
@@ -35,8 +42,4 @@ class EmailAlreadyExistsError(AppError):
     message = 'O Email que você tentou inserir já existe no sistema. Faça login ou tente novamente.'
 
 
-class UserNotFoundError(AppError):
-    status_code = status.HTTP_404_NOT_FOUND
-    status_name = 'USER_NOT_FOUND'
-    message = 'O usuário requisitado não foi encontrado.'
 
