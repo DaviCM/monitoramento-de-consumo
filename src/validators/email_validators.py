@@ -1,5 +1,5 @@
-from database.session import get_session
-from models.user_model import User
+from src.database.session import get_session
+from src.models.user_model import User
 from sqlalchemy import select
 import email_validator
 

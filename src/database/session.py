@@ -1,6 +1,8 @@
 # Tentativa de criar uma espécie de 'pool' de sessões com base em contexto, distrubíndo elas para cada regra de negócio
-from engine import engine
+from src.database.engine import engine
+from src.errors.app_errors import AppError, ServerSideError
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from contextlib import contextmanager
 
 Session = sessionmaker(bind=engine)
@@ -13,9 +15,23 @@ def get_session():
     try:
         yield session
         session.commit()
+        
+    except IntegrityError:
+        session.rollback()
+        raise ServerSideError('Uma restrição do banco de dados foi levantada, como (nullable) ou (unique). Verifique as últimas manipulações de dados.')
+    
+    except SQLAlchemyError:
+        session.rollback()
+        raise ServerSideError('Uma exceção a nível de servidor aconteceu. Verifique se a conexão está funcionando e se o banco de dados está inicializado.')
+    
+    except AppError:
+        session.rollback()
+        raise
+    
     except Exception as e:
         session.rollback()
         raise e
+    
     finally:
         session.close()
 

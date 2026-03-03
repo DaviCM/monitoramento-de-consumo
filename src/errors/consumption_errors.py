@@ -1,4 +1,4 @@
-from app_error import AppError
+from src.errors.app_errors import AppError
 from fastapi import status
 
 class InvalidDateError(AppError):

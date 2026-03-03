@@ -1,8 +1,8 @@
-from models.consumption_history_model import ConsumptionHistory
-from models.user_model import User
-from errors.consumption_errors import *
-from errors.user_errors import UserNotFoundError
-from database.session import get_session
+from src.models.consumption_history_model import ConsumptionHistory
+from src.models.user_model import User
+from src.errors.consumption_errors import *
+from src.errors.user_errors import UserNotFoundError
+from src.database.session import get_session
 from datetime import date
 from decimal import Decimal
 from sqlalchemy import select, and_

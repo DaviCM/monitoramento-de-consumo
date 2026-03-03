@@ -1,10 +1,10 @@
 import os
-from base import Base
-from models.consumption_history_model import ConsumptionHistory
-from models.consumption_simulation_model import ConsumptionSimulation
-from models.goal_model import Goal
-from models.tip_model import Tip
-from models.user_model import User
+from src.database.base import Base
+from src.models.consumption_history_model import ConsumptionHistory
+from src.models.consumption_simulation_model import ConsumptionSimulation
+from src.models.goal_model import Goal
+from src.models.tip_model import Tip
+from src.models.user_model import User
 from sqlalchemy import create_engine
 from dotenv import load_dotenv
 
