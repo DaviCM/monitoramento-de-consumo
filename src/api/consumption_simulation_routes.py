@@ -1,9 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException # importar do fast api o roteador
-from models.consumption_simulation_model import ConsumptionSimulation
-from dependencies import pegar_sessao
-from database import engine
-from schemas.consumption_simulation_schemas import Consumo_Simulation_Schema, Consumption_Simulation_UpdateSchema
-from sqlalchemy.orm import Session
+from src.models.consumption_simulation_model import ConsumptionSimulation
+from src.api.dependencies import pegar_sessao
+from src.schemas.consumption_simulation_schemas import Consumo_Simulation_Schema, Consumption_Simulation_UpdateSchema
+
 
 consumption_simulation_router = APIRouter(prefix= "/consumption_simulation", tags= ["consumo_simulado"])
 

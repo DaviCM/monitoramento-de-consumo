@@ -1,5 +1,5 @@
 from sqlalchemy.orm import sessionmaker
-from database import engine
+from src.database import engine
 
 def pegar_sessao():
     try:
