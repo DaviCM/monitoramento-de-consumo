@@ -1,9 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException 
-from models.consumption_history_model import ConsumptionHistory
-from dependencies import pegar_sessao
-from database import engine
-from schemas.consumption_real_schemas import Consumo_Schema, ConsumptionUpdateSchema
-from sqlalchemy.orm import Session
+from src.models.consumption_history_model import ConsumptionHistory
+from src.api.dependencies import pegar_sessao
+from src.schemas.consumption_real_schemas import Consumo_Schema, ConsumptionUpdateSchema
+
 
 consumption_real_router = APIRouter(prefix= "/consumption_real", tags= ["consumo_real"])
 

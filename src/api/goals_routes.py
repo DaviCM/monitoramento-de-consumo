@@ -1,9 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException # importar do fast api o roteador
-from models.goal_model import Goal
-from dependencies import pegar_sessao
-from database import engine
-from schemas.goals_schemas import GoalsSchema
-from sqlalchemy.orm import Session
+from src.models.goal_model import Goal
+from src.api.dependencies import pegar_sessao
+from src.schemas.goals_schemas import GoalsSchema
+
 
 goals_router = APIRouter(prefix= "/goals", tags= ["metas"])
 
