@@ -1,9 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException # importar do fast api o roteador
-from models.user_model import User
-from dependencies import pegar_sessao
-from database import engine
-from schemas.user_schemas import UserSchema, UserUpdateSchema
-from sqlalchemy.orm import Session
+from src.models.user_model import User
+from src.api.dependencies import pegar_sessao
+from src.schemas.user_schemas import UserSchema, UserUpdateSchema
+
 
 user_router = APIRouter(prefix= "/users", tags= ["usuarios"])
 
