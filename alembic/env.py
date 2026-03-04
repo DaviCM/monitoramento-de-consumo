@@ -21,7 +21,7 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 # add your model's MetaData object here
-# for 'autogenerate' support
+# for revision 'autogenerate' support
 from src.database import base
 from src.models.consumption_history_model import ConsumptionHistory
 from src.models.consumption_simulation_model import ConsumptionSimulation

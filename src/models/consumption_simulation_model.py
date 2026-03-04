@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Numeric, DateTime, ForeignKey, func
+from sqlalchemy import Column, Integer, String, Numeric, Date, ForeignKey, func
 from sqlalchemy.orm import relationship
 from src.database.base import Base
 
@@ -6,8 +6,8 @@ class ConsumptionSimulation(Base):
     __tablename__ = 'consumption_simulations'
 
     id = Column(Integer, primary_key=True)
-    starting_date = Column(DateTime, nullable=False)
-    ending_date = Column(DateTime, nullable=False)
+    starting_date = Column(Date, nullable=False)
+    ending_date = Column(Date, nullable=False)
     si_measurement_unit = Column(String(50), nullable=False)
     value = Column(Numeric(precision=10, scale=2), default=0)
 

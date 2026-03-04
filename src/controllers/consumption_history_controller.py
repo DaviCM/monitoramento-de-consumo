@@ -1,0 +1,144 @@
+from src.models.consumption_history_model import ConsumptionHistory
+from src.models.user_model import User
+from src.errors.consumption_errors import *
+from src.errors.user_errors import UserNotFoundError
+from src.database.session import get_session
+from datetime import date
+from decimal import Decimal
+from sqlalchemy import select, and_
+
+# Irá causar um erro caso um user tente editar um consumo que não é dele!
+def get_owned_consumption(current_user: User, target_consumption: ConsumptionHistory):
+    stmt = select(ConsumptionHistory).where(
+            and_(ConsumptionHistory.creator_id == current_user.id,
+                ConsumptionHistory.id == target_consumption.id))
+    
+    with get_session() as session:
+        result = session.scalar(stmt)
+        
+        if result == None:
+            raise ConsumptionsNotFoundError
+        
+    return result
+
+
+def create_consumption(current_user: User, new_starting_date: date, new_ending_date: date, new_si_measurement_unit: str, new_value: Decimal):
+    if current_user == None:
+        raise UserNotFoundError
+    
+    if (new_starting_date == None) or (new_starting_date > new_ending_date):
+        raise InvalidDateError
+    
+    if new_value <= 0:
+        raise InvalidConsumptionValueError
+    
+    new_consumption = ConsumptionHistory(
+        starting_date=new_starting_date,
+        ending_date=new_ending_date,
+        si_measurement_unit=new_si_measurement_unit,
+        value=new_value,
+        creator_id=current_user.id,
+        creator=current_user.username
+        )
+    
+    with get_session() as session:
+        session.add(new_consumption)
+    
+
+# Ideia muito eficiente da IA e do GitHub issues no SQLAlchemy
+# Criar apenas uma função de query, e utilizar os parâmetros conforme eles forem requisitados
+# Todos são opcionais, e a query é montada dinamicamente a partir de quais foram preenchidos
+# Implementar em user e nos consumos
+# Ideia: type hint |, para identificar o tipo ou None, como no pydantic
+
+def get_user_consumption_history(current_user : User, 
+                                 target_measurement_unit: str | None = None, 
+                                 target_starting_date: date | None = None,
+                                 target_ending_date: date | None = None,
+                                 minimum_value: Decimal | None = None, 
+                                 maximum_value: Decimal | None = None
+                                 ):
+    if current_user == None:
+        raise UserNotFoundError
+    
+    if (maximum_value != None) and (minimum_value != None):
+        if minimum_value > maximum_value:
+            raise InvalidConsumptionValueError
+    
+    if (target_ending_date != None) and (target_starting_date != None):
+        if target_starting_date > target_ending_date:
+            raise InvalidDateError
+
+    stmt = select(ConsumptionHistory).where(ConsumptionHistory.creator_id == current_user.id)
+    
+    if target_measurement_unit != None:
+        stmt = stmt.where(ConsumptionHistory.si_measurement_unit == target_measurement_unit)
+    
+    # comparação por igualdade ou maioridade, pois quero datas depois da data de início
+    if target_starting_date != None:
+        stmt = stmt.where(ConsumptionHistory.starting_date >= target_starting_date)
+        
+    if target_ending_date != None:
+        stmt = stmt.where(ConsumptionHistory.ending_date <= target_ending_date)
+        
+    if minimum_value != None:
+        stmt = stmt.where(ConsumptionHistory.value >= minimum_value)
+        
+    if maximum_value != None:
+        stmt = stmt.where(ConsumptionHistory.value <= maximum_value)
+    
+    # All já trata os scalars como objetos separados, pois ele os consome inteiros
+    with get_session() as session:
+        consumptions = session.scalars(stmt).all()
+        
+        if consumptions == []:
+            raise ConsumptionsNotFoundError
+        
+    return consumptions
+
+
+def edit_consumption(current_user: User,
+                     target_consumption: ConsumptionHistory,
+                     new_starting_date: date | None = None,
+                     new_ending_date: date | None = None,
+                     new_measurement_unit: str | None = None,
+                     new_value: Decimal | None = None):
+    if current_user == None:
+        raise UserNotFoundError
+    
+    if new_value >= 0:
+        raise InvalidConsumptionValueError
+    
+    to_edit = get_owned_consumption(current_user, target_consumption)
+    
+    if new_starting_date > to_edit.ending_date:
+        raise InvalidDateError
+    
+    if new_ending_date < to_edit.starting_date:
+        raise InvalidDateError
+    
+    with get_session():
+        if new_starting_date != None:
+            to_edit.starting_date = new_starting_date
+            
+        if new_ending_date != None:
+            to_edit.ending_date = new_ending_date
+            
+        if new_measurement_unit != None:
+            to_edit.si_measurement_unit = new_measurement_unit
+            
+        if new_value != None:
+            to_edit.value = new_value
+
+
+def delete_consumption(current_user: User, target_consumption: ConsumptionHistory):
+    if current_user == None:
+        raise UserNotFoundError
+    
+    if current_user == None:
+        raise UserNotFoundError
+    
+    to_delete = get_owned_consumption(current_user, target_consumption)
+    with get_session() as session:
+        session.delete(to_delete)
+        
