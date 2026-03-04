@@ -19,3 +19,7 @@ engine = create_engine(os.getenv('DATABASE_URL'),
                        max_overflow=0, # Conexões possíveis acima do tamanho da pool (pico temporário)
                        pool_pre_ping=True, # Verifica a integridade da conexão sempre que a sessão é iniciada
                        echo=True)
+
+if __name__ == '__main__':
+    Base.metadata.create_all(checkfirst=True,
+                             bind=engine)
