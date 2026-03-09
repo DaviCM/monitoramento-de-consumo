@@ -6,15 +6,20 @@ from src.schemas.consumption_real_schemas import Consumo_Schema, ConsumptionUpda
 
 consumption_real_router = APIRouter(prefix= "/consumption_real", tags= ["consumo_real"])
 
-@consumption_real_router.post("/criar consumo real")
+@consumption_real_router.post("/criar_consumo_real")
 async def create_consumption_real(consumo_real_schema: Consumo_Schema, session = Depends(pegar_sessao)):
-    new_consumption = ConsumptionHistory(consumo_real_schema.starting_date, consumo_real_schema.ending_date, consumo_real_schema.si_measurement_unit, consumo_real_schema.value)
-    session.add(new_consumption)
-    session.commit()
-    return{"mensagem": "dados de consumo cadastrado com sucesso"}
+   new_consumption = ConsumptionHistory(
+    starting_date=consumo_real_schema.starting_date,
+    ending_date=consumo_real_schema.ending_date,
+    si_measurement_unit=consumo_real_schema.si_measurement_unit,
+    value=consumo_real_schema.value
+)
+   session.add(new_consumption)
+   session.commit()
+   return{"mensagem": "dados de consumo cadastrado com sucesso"}
 
 
-@consumption_real_router.get("/listar consumo real")
+@consumption_real_router.get("/listar_consumo_real")
 async def list_consumption_real(session = Depends(pegar_sessao)):
     consumption = session.query(ConsumptionHistory).all()
     if not consumption:
@@ -22,7 +27,7 @@ async def list_consumption_real(session = Depends(pegar_sessao)):
     else:
         return{"mensagem": consumption }
 
-@consumption_real_router.put("/editar consumo_real")
+@consumption_real_router.put("/editar_consumo_real")
 async def change_consumption(consumo_real_schema: ConsumptionUpdateSchema, session = Depends(pegar_sessao)):
     consumption = session.query(ConsumptionHistory).filter(ConsumptionHistory.id == consumo_real_schema.id).first()
     if not consumption:

@@ -7,15 +7,20 @@ from src.schemas.consumption_simulation_schemas import Consumo_Simulation_Schema
 consumption_simulation_router = APIRouter(prefix= "/consumption_simulation", tags= ["consumo_simulado"])
 
 
-@consumption_simulation_router.post("/criar simulação de consumo")
+@consumption_simulation_router.post("/criar_simulação_de_consumo")
 async def create_consumption_real(consumo_simulado_schema: Consumo_Simulation_Schema, session = Depends(pegar_sessao)):
-    new_consumption = ConsumptionSimulation(consumo_simulado_schema.starting_date, consumo_simulado_schema.ending_date, consumo_simulado_schema.si_measurement_unit, consumo_simulado_schema.value)
-    session.add(new_consumption)
-    session.commit()
-    return{"mensagem": "simulação de consumo cadastrada com sucesso"}
+     new_consumption = ConsumptionSimulation(
+    starting_date=consumo_simulado_schema.starting_date,
+    ending_date=consumo_simulado_schema.ending_date,
+    si_measurement_unit=consumo_simulado_schema.si_measurement_unit,
+    value=consumo_simulado_schema.value
+)
+     session.add(new_consumption)
+     session.commit()
+     return{"mensagem": "simulação de consumo cadastrada com sucesso"}
 
 
-@consumption_simulation_router.get("/listar consumo real")
+@consumption_simulation_router.get("/listar_consumo_real")
 async def list_consumption_real(session = Depends(pegar_sessao)):
     consumption_simu = session.query(ConsumptionSimulation).all()
     if not consumption_simu:
@@ -23,7 +28,7 @@ async def list_consumption_real(session = Depends(pegar_sessao)):
     else:
         return{"mensagem": consumption_simu }
 
-@consumption_simulation_router.put("/editar simulação de consumo")
+@consumption_simulation_router.put("/editar_simulação_de_consumo")
 async def change_consumption(consumo_simulado_schema: Consumption_Simulation_UpdateSchema, session = Depends(pegar_sessao)):
     consumption = session.query(ConsumptionSimulation).filter(ConsumptionSimulation.id == consumo_simulado_schema.id).first()
     if not consumption:
