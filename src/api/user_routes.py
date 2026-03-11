@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException # importar do fast api o r
 from src.models.user_model import User
 from src.api.dependencies import pegar_sessao
 from src.schemas.user_schemas import UserSchema, UserUpdateSchema
-
+from jwt import PyJWKClient
 
 user_router = APIRouter(prefix= "/users", tags= ["usuarios"])
 
@@ -51,6 +51,13 @@ async def delete_user(user_schema: UserSchema, session = Depends(pegar_sessao)):
         session.delete(user)
         session.commit()
         return {"mensagem" : "usuário excluído com sucesso  "}
+    
+@user_router.post("/login_usuario")
+async def login_user(user_schema: UserSchema, session = Depends(pegar_sessao)):
+   ...
+
+
+
 
    
 
