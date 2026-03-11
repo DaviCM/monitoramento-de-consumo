@@ -4,6 +4,7 @@ from src.errors.consumption_errors import *
 from src.errors.user_errors import UserNotFoundError
 from src.database.session import get_session
 from datetime import date
+from typing import Optional
 from decimal import Decimal
 from sqlalchemy import select, and_
 
@@ -22,7 +23,7 @@ def get_owned_consumption(current_user: User, target_consumption: ConsumptionHis
     return result
 
 
-def create_consumption(current_user: User, new_starting_date: date, new_ending_date: date, new_si_measurement_unit: str, new_value: Decimal):
+def create_consumption(current_user: User, new_starting_date: date, new_ending_date: Optional[date], new_si_measurement_unit: str, new_value: Decimal):
     if current_user == None:
         raise UserNotFoundError
     
@@ -32,14 +33,23 @@ def create_consumption(current_user: User, new_starting_date: date, new_ending_d
     if new_value <= 0:
         raise InvalidConsumptionValueError
     
-    new_consumption = ConsumptionHistory(
+    if new_ending_date == None:
+        new_consumption = ConsumptionHistory(
         starting_date=new_starting_date,
-        ending_date=new_ending_date,
         si_measurement_unit=new_si_measurement_unit,
         value=new_value,
         creator_id=current_user.id,
         creator=current_user.username
         )
+    else:
+        new_consumption = ConsumptionHistory(
+            starting_date=new_starting_date,
+            ending_date=new_ending_date,
+            si_measurement_unit=new_si_measurement_unit,
+            value=new_value,
+            creator_id=current_user.id,
+            creator=current_user.username
+            )
     
     with get_session() as session:
         session.add(new_consumption)
@@ -52,11 +62,11 @@ def create_consumption(current_user: User, new_starting_date: date, new_ending_d
 # Ideia: type hint |, para identificar o tipo ou None, como no pydantic
 
 def get_user_consumption_history(current_user : User, 
-                                 target_measurement_unit: str | None = None, 
-                                 target_starting_date: date | None = None,
-                                 target_ending_date: date | None = None,
-                                 minimum_value: Decimal | None = None, 
-                                 maximum_value: Decimal | None = None
+                                 target_measurement_unit: Optional[str] = None, 
+                                 target_starting_date: Optional[date] = None,
+                                 target_ending_date: Optional[date] = None,
+                                 minimum_value: Optional[Decimal] = None, 
+                                 maximum_value: Optional[Decimal] = None
                                  ):
     if current_user == None:
         raise UserNotFoundError
@@ -99,10 +109,10 @@ def get_user_consumption_history(current_user : User,
 
 def edit_consumption(current_user: User,
                      target_consumption: ConsumptionHistory,
-                     new_starting_date: date | None = None,
-                     new_ending_date: date | None = None,
-                     new_measurement_unit: str | None = None,
-                     new_value: Decimal | None = None):
+                     new_starting_date: Optional[date] = None,
+                     new_ending_date: Optional[date] = None,
+                     new_measurement_unit: Optional[str] = None,
+                     new_value: Optional[Decimal] = None):
     if current_user == None:
         raise UserNotFoundError
     

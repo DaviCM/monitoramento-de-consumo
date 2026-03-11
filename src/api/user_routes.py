@@ -25,7 +25,7 @@ async def create_user(user_schema: UserSchema, session = Depends(pegar_sessao)):
 
 @user_router.put("/editar_usuario")
 async def update_password(user_schema: UserUpdateSchema, session = Depends(pegar_sessao)):
-    user = session.query(User).filter(User.email == user_schema.current_email).first()
+    user = session.query(User).filter(User.id == user_schema.id).first()
     if not user:
         raise HTTPException(status_code=404, detail = "Usuário não encontrado")
     

@@ -1,17 +1,22 @@
 from pydantic import BaseModel
-from datetime import datetime
+from datetime import date
+from decimal import Decimal
 from typing import Optional
 
-class Consumo_Schema(BaseModel):
-    starting_date: datetime
-    ending_date:  datetime
+class ConsumptionSchema(BaseModel):
+    id: int
+    starting_date: date
+    ending_date: date
     si_measurement_unit: str
-    value: float
-    id: int
+    value: Decimal
 
-class ConsumptionUpdateSchema(BaseModel):
-    new_starting_date: Optional[datetime] = None
-    new_ending_date: Optional[datetime] = None
-    new_si_measurement_unit: Optional[str] = None
-    new_value: Optional[float] = None
+
+
+class UpdateConsumptionSchema(BaseModel):
     id: int
+    new_starting_date: Optional[date] = None
+    new_ending_date: Optional[date] = None
+    new_si_measurement_unit: Optional[str] = None
+    new_value: Optional[Decimal] = None
+    
+    
