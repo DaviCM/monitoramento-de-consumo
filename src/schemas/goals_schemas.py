@@ -1,19 +1,22 @@
 from pydantic import BaseModel
-from datetime import datetime
+from datetime import date
 from decimal import Decimal
 from typing import Optional
 
-class GoalsSchema(BaseModel):
-    starting_date: datetime
-    ending_date: datetime
-    si_measurement_unit:  str
+class GoalSchema(BaseModel):
+    id: int
+    starting_date: date
+    ending_date: date
+    si_measurement_unit: str
     value: Decimal
-    id: int
 
-class UpdateGoalsSchema(BaseModel):
-    new_starting_date: Optional[datetime] = None
+
+
+class UpdateGoalSchema(BaseModel):
     id: int
-    new_ending_date: Optional[datetime] = None
+    new_starting_date: Optional[date] = None
+    new_ending_date: Optional[date] = None
     new_si_measurement_unit: Optional[str] = None
     new_value: Optional[Decimal] = None
-
+    
+    

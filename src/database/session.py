@@ -3,6 +3,7 @@ from src.database.engine import engine
 from src.errors.app_errors import AppError, ServerSideError
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from fastapi.exceptions import FastAPIError
 from contextlib import contextmanager
 
 Session = sessionmaker(bind=engine)
@@ -23,6 +24,10 @@ def get_session():
     except SQLAlchemyError:
         session.rollback()
         raise ServerSideError('Uma exceção a nível de servidor aconteceu. Verifique se a conexão está funcionando e se o banco de dados está inicializado.')
+    
+    except FastAPIError:
+        session.rollback()
+        raise ServerSideError('Uma exceção no funcionamento da API aconteceu, verifique se todo o código está ok.')
     
     except AppError:
         session.rollback()
