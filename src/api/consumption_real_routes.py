@@ -4,6 +4,7 @@ from src.database.session import get_session
 from src.schemas.consumption_real_schemas import Consumo_Schema, ConsumptionUpdateSchema
 from src.controllers.consumption_history_controller import * 
 from src.errors.consumption_errors import * 
+from src.api.security import get_current_user
 
 consumption_real_router = APIRouter(prefix= "/consumption_real", tags= ["consumo_real"])
 
@@ -52,32 +53,21 @@ async def change_consumption(consumo_real_schema: ConsumptionUpdateSchema, sessi
     return{"mensagem" : "Registros de consumos alterados com sucesso"}
 
 
-@consumption_real_router.delete("/deletar_consumo/{id}")
-async def delete_consumption(id: int, session = Depends(get_session)):
-    consumption = session.query(ConsumptionHistory).filter(ConsumptionHistory. id == id).first()
-    if not consumption:
-        raise HTTPException(status_code=404, detail="Registros de consumo não encontrado")
-    else:
-        session.delete(consumption)
-        return {"mensagem": "usuário excluído com sucesso  "}
-    
-
-@user_router.delete("/excluir_usuario")
-async def delete_user(user_schema: get_current_user):
-  try:
-    delete_self(user_schema,get_current_user)
-  except UserNotFoundError as e:
-    raise HTTPException(status_code=e.status_code, detail=e.message)
-  return{"mensagem" : "usuário excluído com sucesso !"}
 
 
 
 @consumption_real_router.delete("/deletar_consumo/{id}")
-async def delete_consumption(consumo_real_schema: Consumo_Schema):
+async def delete_consumption_route(id: int, current_user: User = Depends(get_current_user)):
     try:
-        delete_consumption
-
-
-
+        with get_session() as session:
+         consumption = session.query(ConsumptionHistory).filter(ConsumptionHistory.id == id).first()
+         if consumption is None: 
+           raise ConsumptionsNotFoundError
+        delete_consumption(current_user, consumption)
+    except UserNotFoundError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+    except ConsumptionsNotFoundError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+    return {"mensagem": "consumo excluído com sucesso"}
 
 

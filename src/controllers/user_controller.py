@@ -58,6 +58,20 @@ def edit_user_real_name(current_user: User, new_real_name):
     
     with get_session():
         current_user.real_name = new_real_name
+
+
+def edit_user_email(current_user: User, new_email):
+    if current_user == None:
+        raise UserNotFoundError
+    
+    if email_validators.verify_email(new_email) == False:
+        raise InvalidEmailError
+    
+    if email_validators.email_already_exists(new_email):
+        raise EmailAlreadyExistsError
+    
+    with get_session():
+        current_user.email = new_email
     
     
 def edit_user_username(current_user: User, new_username):
@@ -86,4 +100,12 @@ def delete_self(current_user: User):
     with get_session() as session:
             session.delete(current_user)
     
-    
+ 
+def get_user_by_id(target_id):
+    with get_session() as session:
+        stmt = select(User).where(User.id == target_id)
+        user = session.scalar(stmt)
+        
+        if user == None:
+            raise UserNotFoundError
+    return user   

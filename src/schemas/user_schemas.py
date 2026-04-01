@@ -21,3 +21,9 @@ class UpdateUserSchema(BaseModel):
 class Token(BaseModel):
     acess_token: str
     token_type: str
+
+
+
+class ForgotPasswordSchema(BaseModel):
+    email: str
+    new_password: str

@@ -1,5 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException # importar do fast api o roteador
+from fastapi import APIRouter, Depends, HTTPException, status # importar do fast api o roteador
 from src.models.consumption_simulation_model import ConsumptionSimulation
+from src.controllers.consumption_simulations_controller import *
 from src.database.session import get_session
 from src.schemas.consumption_simulation_schemas import Consumo_Simulation_Schema, Consumption_Simulation_UpdateSchema
 
@@ -7,25 +8,27 @@ from src.schemas.consumption_simulation_schemas import Consumo_Simulation_Schema
 consumption_simulation_router = APIRouter(prefix= "/consumption_simulation", tags= ["consumo_simulado"])
 
 
-@consumption_simulation_router.post("/criar_simulação_de_consumo")
-async def create_consumption_real(consumo_simulado_schema: Consumo_Simulation_Schema, session = Depends(get_session)):
-     new_consumption = ConsumptionSimulation(
-    starting_date=consumo_simulado_schema.starting_date,
-    ending_date=consumo_simulado_schema.ending_date,
-    si_measurement_unit=consumo_simulado_schema.si_measurement_unit,
-    value=consumo_simulado_schema.value
-)
-     session.add(new_consumption)
-     return{"mensagem": "simulação de consumo cadastrada com sucesso"}
+@consumption_simulation_router.post("/criar_simulação_de_consumo", status_code=status.HTTP_201_CREATED)
+async def create_consumption_real(consumo_simulado_schema: Consumo_Simulation_Schema):
+    try:
+        create_simulation(
+                    starting_date=consumo_simulado_schema.starting_date,
+                    ending_date=consumo_simulado_schema.ending_date,
+                    si_measurement_unit=consumo_simulado_schema.si_measurement_unit,
+                    value=consumo_simulado_schema.value)
+    except UserNotFoundError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+    except InvalidDateError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+    except InvalidConsumptionValueError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
 
 
 @consumption_simulation_router.get("/listar_consumo_real")
-async def list_consumption_real(session = Depends(get_session)):
+async def list_consumption_simulations():
     consumption_simu = session.query(ConsumptionSimulation).all()
-    if not consumption_simu:
+    if not consumption_simulation:
         raise HTTPException(status_code=404, detail="Lista de simulação de consumo não encontrada")
-    else:
-        return{"mensagem": consumption_simu }
 
 
 @consumption_simulation_router.put("/editar_simulação_de_consumo")
