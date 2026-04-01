@@ -7,7 +7,6 @@ from src.models.tip_model import Tip
 from src.models.user_model import User
 from sqlalchemy import create_engine
 from dotenv import load_dotenv
-import psycopg
 
 load_dotenv()
 
