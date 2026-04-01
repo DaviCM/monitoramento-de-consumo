@@ -70,17 +70,16 @@ async def delete_user(user_schema: get_current_user):
     
 @user_router.post("/login_usuario_token", response_model=Token)
 async def login_user(form_data: OAuth2PasswordRequestForm):
- try:
-   user = login(form_data.username, form_data.password)
-   access_token = create_acess_token(data={'sub' : user.email})
+  try:
+    access_token = login(form_data.username, form_data.password)
 
- except UserNotFoundError as e:
-   raise HTTPException(status_code=e.status_code, detail=e.message)
+  except UserNotFoundError as e:
+    raise HTTPException(status_code=e.status_code, detail=e.message)
  
- except InvalidCredentialsError as e:
-   raise HTTPException(status_code=e.status_code, detail=e.message)
+  except InvalidCredentialsError as e:
+    raise HTTPException(status_code=e.status_code, detail=e.message)
  
- return {'acess_token': access_token, 'token_type' : 'bearer'}
+  return {'acess_token': access_token, 'token_type' : 'bearer'}
  
 
 @user_router.post("esqueci_a_senha")

@@ -2,6 +2,7 @@ from src.models.user_model import User
 from src.database.session import get_session
 from src.errors.user_errors import *
 from src.validators import email_validators, password_validators, username_validators
+from src.api.security import create_access_token
 from sqlalchemy import select
 from argon2 import PasswordHasher
 
@@ -49,7 +50,17 @@ def login(user_email, user_password):
     if verify_password(hashed_password, user_password) == False:
         raise InvalidCredentialsError
     else:
-        return returned_user
+        return create_access_token(returned_user)
+
+
+def get_user_by_id(target_id):
+    with get_session() as session:
+        stmt = select(User).where(User.id == target_id)
+        user = session.scalar(stmt)
+        
+        if user == None:
+            raise UserNotFoundError
+    return user
 
 
 def edit_user_real_name(current_user: User, new_real_name):
