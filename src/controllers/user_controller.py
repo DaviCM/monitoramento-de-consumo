@@ -52,10 +52,6 @@ def login(user_email, user_password):
         return returned_user
 
 
-def return_user_by_token(token):
-    pass
-
-
 def edit_user_real_name(current_user: User, new_real_name):
     if current_user == None:
         raise UserNotFoundError
