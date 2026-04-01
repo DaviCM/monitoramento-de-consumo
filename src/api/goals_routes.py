@@ -43,6 +43,7 @@ async def change_consumption(goals_schema: UpdateGoalsSchema , session = Depends
     session.commit()
     return{"mensagem" : "Metas de consumo alterados com sucesso"}
 
+
 @goals_router.delete("/deletar_meta/{id}")
 async def delete_goals(id: int, session = Depends(get_session)):
     goals = session.query(Goal).filter(Goal. id == id).first()

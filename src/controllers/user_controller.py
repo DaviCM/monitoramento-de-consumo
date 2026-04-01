@@ -5,6 +5,7 @@ from src.validators import email_validators, password_validators, username_valid
 from sqlalchemy import select
 from argon2 import PasswordHasher
 
+
 argon2 = PasswordHasher()
 
 def verify_password(hashed_password, password):

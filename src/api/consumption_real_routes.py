@@ -2,19 +2,23 @@ from fastapi import APIRouter, Depends, HTTPException
 from src.models.consumption_history_model import ConsumptionHistory
 from src.database.session import get_session
 from src.schemas.consumption_real_schemas import Consumo_Schema, ConsumptionUpdateSchema
+from src.controllers.consumption_history_controller import create_consumption, edit_consumption, delete_consumption, g
+from src.errors.consumption_errors import InvalidConsumptionValueError, InvalidDateError, ConsumptionsNotFoundError, SimulationsNotFoundError, GoalsNotFoundError
+
 
 consumption_real_router = APIRouter(prefix= "/consumption_real", tags= ["consumo_real"])
 
 @consumption_real_router.post("/criar_consumo_real")
-async def create_consumption_real(consumo_real_schema: Consumo_Schema, session = Depends(get_session)):
-   new_consumption = ConsumptionHistory(
-    starting_date=consumo_real_schema.starting_date,
-    ending_date=consumo_real_schema.ending_date,
-    si_measurement_unit=consumo_real_schema.si_measurement_unit,
-    value=consumo_real_schema.value
-)
-   session.add(new_consumption)
-   return{"mensagem": "dados de consumo cadastrado com sucesso"}
+async def create_consumption_real(consumo_real_schema: Consumo_Schema):
+ try:
+      create_consumption(consumo_real_schema.starting_date, consumo_real_schema.ending_date, consumo_real_schema.si_measurement_unit, consumo_real_schema.value)
+ except InvalidDateError as e:
+      raise HTTPException(status_code=e.status_code, detail=e.message)
+
+ except InvalidConsumptionValueError as e:
+      raise HTTPException(status_code=e.status_code, detail=e.message)
+
+ return{"mensagem": "dados de consumo cadastrado com sucesso"}
 
 
 @consumption_real_router.get("/listar_consumo_real")
