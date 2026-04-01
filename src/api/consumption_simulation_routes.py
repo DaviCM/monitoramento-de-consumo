@@ -3,15 +3,18 @@ from src.models.consumption_simulation_model import ConsumptionSimulation
 from src.controllers.consumption_simulations_controller import *
 from src.database.session import get_session
 from src.schemas.consumption_simulation_schemas import Consumo_Simulation_Schema, Consumption_Simulation_UpdateSchema
+from src.api.user_routes import login
 
 
 consumption_simulation_router = APIRouter(prefix= "/consumption_simulation", tags= ["consumo_simulado"])
 
+user = login()
 
 @consumption_simulation_router.post("/criar_simulação_de_consumo", status_code=status.HTTP_201_CREATED)
 async def create_consumption_real(consumo_simulado_schema: Consumo_Simulation_Schema):
     try:
         create_simulation(
+                    current_user=user
                     starting_date=consumo_simulado_schema.starting_date,
                     ending_date=consumo_simulado_schema.ending_date,
                     si_measurement_unit=consumo_simulado_schema.si_measurement_unit,

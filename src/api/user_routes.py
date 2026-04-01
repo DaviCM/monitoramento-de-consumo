@@ -80,7 +80,7 @@ async def login_user(form_data: OAuth2PasswordRequestForm):
  except InvalidCredentialsError as e:
    raise HTTPException(status_code=e.status_code, detail=e.message)
  
- return{'acess_token': access_token, 'token_type' : 'bearer'}
+ return {'acess_token': access_token, 'token_type' : 'bearer'}
  
 
 @user_router.post("esqueci_a_senha")
