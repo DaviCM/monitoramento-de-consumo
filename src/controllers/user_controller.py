@@ -54,12 +54,13 @@ def login(user_email, user_password):
 
 
 def get_user_by_id(target_id):
+    stmt = select(User).where(User.id == target_id)
     with get_session() as session:
-        stmt = select(User).where(User.id == target_id)
         user = session.scalar(stmt)
         
-        if user == None:
-            raise UserNotFoundError
+    if user == None:
+        raise UserNotFoundError
+        
     return user
 
 
