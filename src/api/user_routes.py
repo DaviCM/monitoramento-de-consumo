@@ -57,7 +57,7 @@ async def update_user(user_schema: UpdateUserSchema):
      raise HTTPException(status_code=e.status_code, detail=e.message)
 
    return{"mensagem" : "usuário editado com sucesso  "}
-    
+     
 
 @user_router.delete("/excluir_usuario")
 async def delete_user(user_schema: get_current_user):
@@ -80,7 +80,7 @@ async def login_user(form_data: OAuth2PasswordRequestForm):
  except InvalidCredentialsError as e:
    raise HTTPException(status_code=e.status_code, detail=e.message)
  
- return{'acess_token': access_token, 'token_type' : 'bearer'}
+ return user
  
 
 @user_router.post("esqueci_a_senha")

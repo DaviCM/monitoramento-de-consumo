@@ -2,9 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from src.models.consumption_history_model import ConsumptionHistory
 from src.database.session import get_session
 from src.schemas.consumption_real_schemas import Consumo_Schema, ConsumptionUpdateSchema
-from src.controllers.consumption_history_controller import create_consumption, edit_consumption, delete_consumption, g
-from src.errors.consumption_errors import InvalidConsumptionValueError, InvalidDateError, ConsumptionsNotFoundError, SimulationsNotFoundError, GoalsNotFoundError
-
+from src.controllers.consumption_history_controller import * 
+from src.errors.consumption_errors import * 
 
 consumption_real_router = APIRouter(prefix= "/consumption_real", tags= ["consumo_real"])
 
@@ -22,12 +21,14 @@ async def create_consumption_real(consumo_real_schema: Consumo_Schema):
 
 
 @consumption_real_router.get("/listar_consumo_real")
-async def list_consumption_real(session = Depends(get_session)):
-    consumption = session.query(ConsumptionHistory).all()
-    if not consumption:
-        raise HTTPException(status_code=404, detail="Lista de consumo não encontrada")
-    else:
-        return{"mensagem": consumption }
+async def list_consumption_real(consumo_real_schema: Consumo_Schema):
+ try:
+    consumption=get_user_consumption_history(consumo_real_schema.starting_date, consumo_real_schema.ending_date, consumo_real_schema.si_measurement_unit, consumo_real_schema.value)
+
+ except ConsumptionsNotFoundError as e:
+    raise HTTPException(status_code=e.status_code, detail=e.message)
+ 
+ return{"mensagem": consumption }
 
 
 @consumption_real_router.put("/editar_consumo_real")
@@ -61,11 +62,20 @@ async def delete_consumption(id: int, session = Depends(get_session)):
         return {"mensagem": "usuário excluído com sucesso  "}
     
 
+@user_router.delete("/excluir_usuario")
+async def delete_user(user_schema: get_current_user):
+  try:
+    delete_self(user_schema,get_current_user)
+  except UserNotFoundError as e:
+    raise HTTPException(status_code=e.status_code, detail=e.message)
+  return{"mensagem" : "usuário excluído com sucesso !"}
 
 
 
-
-
+@consumption_real_router.delete("/deletar_consumo/{id}")
+async def delete_consumption(consumo_real_schema: Consumo_Schema):
+    try:
+        delete_consumption
 
 
 
