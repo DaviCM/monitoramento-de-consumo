@@ -1,67 +1,94 @@
 from fastapi import APIRouter, Depends, HTTPException, status # importar do fast api o roteador
-from src.models.consumption_simulation_model import ConsumptionSimulation
 from src.controllers.consumption_simulations_controller import *
-from src.database.session import get_session
-from src.schemas.consumption_simulation_schemas import Consumo_Simulation_Schema, Consumption_Simulation_UpdateSchema
-from src.api.user_routes import login
+from src.schemas.consumption_simulation_schemas import *
+from src.api.security import get_current_user
 
+consumption_simulation_router = APIRouter(prefix= "/simulacoes", tags=["Simulações"])
 
-consumption_simulation_router = APIRouter(prefix= "/consumption_simulation", tags= ["consumo_simulado"])
-
-user = login()
-
-@consumption_simulation_router.post("/criar_simulação_de_consumo", status_code=status.HTTP_201_CREATED)
-async def create_consumption_real(consumo_simulado_schema: Consumo_Simulation_Schema):
+@consumption_simulation_router.post(prefix="/criar_simulacao", status_code=status.HTTP_201_CREATED, response_model=ResponseSimulationSchema)
+async def create_simulation_route(to_create: SimulationSchema, current_user: User = Depends(get_current_user)):
     try:
-        create_simulation(
-                    current_user=user
-                    starting_date=consumo_simulado_schema.starting_date,
-                    ending_date=consumo_simulado_schema.ending_date,
-                    si_measurement_unit=consumo_simulado_schema.si_measurement_unit,
-                    value=consumo_simulado_schema.value)
+        return create_simulation(current_user=current_user,
+                                 starting_date=to_create.starting_date,
+                                 ending_date=to_create.ending_date,
+                                 si_measurement_unit=to_create.si_measurement_unit,
+                                 value=to_create.value
+                                 )
+        
     except UserNotFoundError as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)
+    
     except InvalidDateError as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)
+    
     except InvalidConsumptionValueError as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)
 
 
-@consumption_simulation_router.get("/listar_consumo_real")
-async def list_consumption_simulations():
-    consumption_simu = session.query(ConsumptionSimulation).all()
-    if not consumption_simulation:
-        raise HTTPException(status_code=404, detail="Lista de simulação de consumo não encontrada")
 
-
-@consumption_simulation_router.put("/editar_simulação_de_consumo")
-async def change_consumption(consumo_simulado_schema: Consumption_Simulation_UpdateSchema, session = Depends(get_session)):
-    consumption = session.query(ConsumptionSimulation).filter(ConsumptionSimulation.id == consumo_simulado_schema.id).first()
-    if not consumption:
-        raise HTTPException(status_code=404, detail = "Registros de consumo não encontrado")
+# Essa função está retornando uma lista das respostas que são geradas automaticamente pelo Pydantic
+# Controller irá retornar uma lista de objetos de simulação, e o pydantic tratará com base no response_model
+# Para mostrar já formatado em JSON
+@consumption_simulation_router.get(prefix="/listar_simulacoes", status_code=status.HTTP_200_OK, response_model=list[ResponseSimulationSchema])
+async def list_simulations_route(params: QuerySimulationSchema, current_user: User = Depends(get_current_user)):
+    try:
+        return get_user_simulations(current_user=current_user,
+                                    target_measurement_unit=params.measurement_unit, 
+                                    target_starting_date=params.starting_date,
+                                    target_ending_date=params.ending_date,
+                                    minimum_value=params.minimum_value, 
+                                    maximum_value=params.maximum_value,
+                                    )
     
-    if consumo_simulado_schema.new_starting_date is not None:
-            consumption.starting_date = consumo_simulado_schema.new_starting_date
-            
-    if consumo_simulado_schema.new_ending_date is not None:
-            consumption.ending_date = consumo_simulado_schema.new_ending_date
-            
-    if consumo_simulado_schema.new_si_measurement_unit is not None:
-            consumption.si_measurement_unit = consumo_simulado_schema.new_si_measurement_unit
-            
-    if consumo_simulado_schema.new_value is not None:
-            consumption.value = consumo_simulado_schema.new_value
+    except UserNotFoundError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+        
+    except ConsumptionsNotFoundError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+    
+    except InvalidConsumptionValueError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+        
+    except InvalidDateError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+    
 
-    return{"mensagem" : "Simulação de consumos alterados com sucesso"}
+
+@consumption_simulation_router.patch(prefix="/editar_simulacao/{id}", status_code=status.HTTP_200_OK, response_model=ResponseSimulationSchema)
+async def edit_simulation_route(id: int, params: UpdateSimulationSchema, current_user: User = Depends(get_current_user)):
+    try:
+        return edit_simulation(current_user=current_user,
+                               target_simulation_id=id,
+                               new_starting_date=params.new_starting_date,
+                               new_ending_date=params.new_ending_date,
+                               new_measurement_unit=params.new_si_measurement_unit,
+                               new_value=params.new_value
+                               )
+    
+    except UserNotFoundError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+    
+    except ConsumptionsNotFoundError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+    
+    except InvalidConsumptionValueError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+    
+    except InvalidDateError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+    
 
 
-@consumption_simulation_router.delete("/deletar_consumo/{id}")
-async def delete_consumption(id: int, session = Depends(get_session)):
-    consumption = session.query(ConsumptionSimulation).filter(ConsumptionSimulation. id == id).first()
-    if not consumption:
-        raise HTTPException(status_code=404, detail=" Simulação de consumo não encontrado")
-    else:
-        session.delete(consumption)
-        return {"mensagem": "simulação de consumo excluído com sucesso  "}
+@consumption_simulation_router.delete(prefix="/deletar_simulacao/{id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_simulation_route(id: int, current_user: User = Depends(get_current_user)):
+    try:
+        delete_simulation(current_user=current_user,
+                          target_consumption_id=id)
+    
+    except UserNotFoundError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+    
+    except ConsumptionsNotFoundError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
     
 

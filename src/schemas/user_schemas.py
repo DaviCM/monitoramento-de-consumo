@@ -2,7 +2,6 @@ from pydantic import BaseModel, EmailStr
 from typing import Optional
 
 class UserSchema(BaseModel):
-    id: int
     real_name: str
     username: str
     email: EmailStr
@@ -12,10 +11,16 @@ class UserSchema(BaseModel):
 
 class UpdateUserSchema(BaseModel):
     id: int
-    new_name: Optional[str] = None
-    new_email: Optional[EmailStr] = None
-    new_password: Optional[str] = None
+    new_name: Optional[str]
+    new_email: Optional[EmailStr]
+    new_password: Optional[str]
 
+
+
+class LoginSchema(BaseModel):
+    email: EmailStr
+    password: str
+    
 
 
 class Token(BaseModel):

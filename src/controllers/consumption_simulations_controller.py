@@ -7,18 +7,18 @@ from datetime import date
 from typing import Optional
 from decimal import Decimal
 from sqlalchemy import select, and_
+from sqlalchemy.orm import Session
 
 # Irá causar um erro caso um user tente editar um consumo que não é dele!
-def get_owned_simulations(current_user: User, target_simulation: ConsumptionSimulation):
+def get_owned_simulation(session: Session, current_user: User, target_simulation_id: int):
     stmt = select(ConsumptionSimulation).where(
             and_(ConsumptionSimulation.creator_id == current_user.id,
-                ConsumptionSimulation.id == target_simulation.id))
+                ConsumptionSimulation.id == target_simulation_id))
     
-    with get_session() as session:
-        result = session.scalar(stmt)
+    result = session.scalar(stmt)
         
-        if result == None:
-            raise ConsumptionsNotFoundError
+    if result == None:
+        raise ConsumptionsNotFoundError
         
     return result
 
@@ -44,6 +44,10 @@ def create_simulation(current_user: User, new_starting_date: date, new_ending_da
     
     with get_session() as session:
         session.add(new_simulation)
+        # gera o insert da simulação antes do commit, para podermos retornar ela completa
+        session.flush()
+        
+    return new_simulation
     
     
 def get_user_simulations(current_user : User, 
@@ -93,26 +97,27 @@ def get_user_simulations(current_user : User,
 
 
 def edit_simulation(current_user: User,
-                     target_simulation: ConsumptionSimulation,
+                     target_simulation_id: int,
                      new_starting_date: Optional[date] = None,
                      new_ending_date: Optional[date] = None,
                      new_measurement_unit: Optional[str] = None,
                      new_value: Optional[Decimal] = None):
+    
     if current_user == None:
         raise UserNotFoundError
     
-    if new_value >= 0:
+    if (new_value != None) and (new_value <= 0):
         raise InvalidConsumptionValueError
+        
+    with get_session() as session:
+        to_edit = get_owned_simulation(session, current_user, target_simulation_id)
+
+        if (new_starting_date != None) and (new_starting_date > to_edit.ending_date):
+            raise InvalidDateError
+
+        if (new_ending_date != None) and (new_ending_date < to_edit.starting_date):
+            raise InvalidDateError
     
-    to_edit = get_owned_simulations(current_user, target_simulation)
-    
-    if new_starting_date > to_edit.ending_date:
-        raise InvalidDateError
-    
-    if new_ending_date < to_edit.starting_date:
-        raise InvalidDateError
-    
-    with get_session():
         if new_starting_date != None:
             to_edit.starting_date = new_starting_date
             
@@ -124,16 +129,15 @@ def edit_simulation(current_user: User,
             
         if new_value != None:
             to_edit.value = new_value
+        
+    return to_edit
 
 
-def delete_simulation(current_user: User, target_consumption: ConsumptionSimulation):
+def delete_simulation(current_user: User, target_consumption_id: int):
     if current_user == None:
         raise UserNotFoundError
     
-    if current_user == None:
-        raise UserNotFoundError
-    
-    to_delete = get_owned_simulations(current_user, target_consumption)
     with get_session() as session:
+        to_delete = get_owned_simulation(session, current_user, target_consumption_id)
         session.delete(to_delete)
         

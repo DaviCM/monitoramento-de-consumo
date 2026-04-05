@@ -3,7 +3,7 @@ from datetime import date
 from decimal import Decimal
 from typing import Optional
 
-class ConsumptionSchema(BaseModel):
+class GoalSchema(BaseModel):
     starting_date: date
     ending_date: date
     si_measurement_unit: str
@@ -11,16 +11,16 @@ class ConsumptionSchema(BaseModel):
 
 
 
-class UpdateConsumptionSchema(BaseModel):
+class UpdateGoalSchema(BaseModel):
     id: int
     new_starting_date: Optional[date]
     new_ending_date: Optional[date]
     new_si_measurement_unit: Optional[str]
     new_value: Optional[Decimal]
-    
 
 
-class ResponseConsumptionSchema(BaseModel):
+
+class ResponseGoalSchema(BaseModel):
     model_config = (ConfigDict(from_attributes=True))
     
     id: int
@@ -31,7 +31,7 @@ class ResponseConsumptionSchema(BaseModel):
     
     
 
-class QueryConsumptionSchema(BaseModel):
+class QueryGoalSchema(BaseModel):
     measurement_unit: Optional[str]
     starting_date: Optional[date]
     ending_date: Optional[date]
