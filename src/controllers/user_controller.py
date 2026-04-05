@@ -2,7 +2,7 @@ from src.models.user_model import User
 from src.database.session import get_session
 from src.errors.user_errors import *
 from src.validators import email_validators, password_validators, username_validators
-from src.api.security import create_access_token
+from src.token import create_access_token
 from sqlalchemy import select
 from argon2 import PasswordHasher
 
@@ -38,30 +38,20 @@ def create_user(new_real_name, new_username, new_email, new_password):
         
 
 def login(user_email, user_password):
-    stmt = select(User).where(User.email == user_email)
+    stmt = select(User).where(User.username == user_email)
     with get_session() as session:
         returned_user = session.scalar(stmt)
         
-    if returned_user == None:
-        raise UserNotFoundError
-    
-    hashed_password = returned_user.password
-    
+        if returned_user is None:
+            raise UserNotFoundError
+        
+        user_id = returned_user.id
+        hashed_password = returned_user.password
+        
     if verify_password(hashed_password, user_password) == False:
         raise InvalidCredentialsError
-    else:
-        return create_access_token(returned_user)
-
-
-def get_user_by_id(target_id):
-    stmt = select(User).where(User.id == target_id)
-    with get_session() as session:
-        user = session.scalar(stmt)
-        
-    if user == None:
-        raise UserNotFoundError
-        
-    return user
+    
+    return create_access_token(user_id)
 
 
 def edit_user_real_name(current_user: User, new_real_name):
@@ -112,4 +102,23 @@ def delete_self(current_user: User):
     with get_session() as session:
             session.delete(current_user)
     
+ 
+def get_user_by_id(target_id):
+    with get_session() as session:
+        stmt = select(User).where(User.id == target_id)
+        user = session.scalar(stmt)
+        
+        if user == None:
+            raise UserNotFoundError
+    return user   
+
+
+def get_user_by_email(email: str):
+    stmt = select(User).where(User.email == email)
+    with get_session() as session:
+        user = session.scalar(stmt)
+        
+    if user is None:
+        raise UserNotFoundError
     
+    return user
