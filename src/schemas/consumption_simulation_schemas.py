@@ -12,7 +12,6 @@ class SimulationSchema(BaseModel):
 
 
 class UpdateSimulationSchema(BaseModel):
-    id: int
     new_starting_date: Optional[date]
     new_ending_date: Optional[date]
     new_si_measurement_unit: Optional[str]

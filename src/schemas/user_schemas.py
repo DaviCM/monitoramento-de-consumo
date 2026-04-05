@@ -10,7 +10,6 @@ class UserSchema(BaseModel):
 
 
 class UpdateUserSchema(BaseModel):
-    id: int
     new_name: Optional[str]
     new_email: Optional[EmailStr]
     new_password: Optional[str]
