@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException # importar do fast api o roteador
 from src.models.goal_model import Goal
 from src.database.session import get_session
-from src.schemas.goal_schemas import GoalsSchema, UpdateGoalsSchema
+from src.schemas.goals_schemas import GoalsSchema, UpdateGoalsSchema
 
 
 goals_router = APIRouter(prefix= "/goals", tags= ["metas"])
