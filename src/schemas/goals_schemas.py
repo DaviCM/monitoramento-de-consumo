@@ -3,8 +3,8 @@ from datetime import date
 from decimal import Decimal
 from typing import Optional
 
-class GoalSchema(BaseModel):
-    id: int
+class GoalsSchema(BaseModel):
+   
     starting_date: date
     ending_date: date
     si_measurement_unit: str
@@ -12,7 +12,7 @@ class GoalSchema(BaseModel):
 
 
 
-class UpdateGoalSchema(BaseModel):
+class UpdateGoalsSchema(BaseModel):
     id: int
     new_starting_date: Optional[date] = None
     new_ending_date: Optional[date] = None

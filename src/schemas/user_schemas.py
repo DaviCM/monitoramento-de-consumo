@@ -2,7 +2,7 @@ from pydantic import BaseModel, EmailStr
 from typing import Optional
 
 class UserSchema(BaseModel):
-    id: int
+    
     real_name: str
     username: str
     email: EmailStr
@@ -19,7 +19,7 @@ class UpdateUserSchema(BaseModel):
 
 
 class Token(BaseModel):
-    acess_token: str
+    access_token: str
     token_type: str
 
 

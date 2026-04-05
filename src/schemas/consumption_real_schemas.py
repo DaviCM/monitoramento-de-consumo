@@ -4,7 +4,7 @@ from decimal import Decimal
 from typing import Optional
 
 class ConsumptionSchema(BaseModel):
-    id: int
+    
     starting_date: date
     ending_date: date
     si_measurement_unit: str
