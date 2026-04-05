@@ -7,18 +7,18 @@ from datetime import date
 from typing import Optional
 from decimal import Decimal
 from sqlalchemy import select, and_
+from sqlalchemy.orm import Session
 
 # Irá causar um erro caso um user tente editar um consumo que não é dele!
-def get_owned_consumption(current_user: User, target_consumption: ConsumptionHistory):
+def get_owned_consumption(session: Session, current_user: User, target_consumption: ConsumptionHistory):
     stmt = select(ConsumptionHistory).where(
             and_(ConsumptionHistory.creator_id == current_user.id,
                 ConsumptionHistory.id == target_consumption.id))
     
-    with get_session() as session:
-        result = session.scalar(stmt)
+    result = session.scalar(stmt)
         
-        if result == None:
-            raise ConsumptionsNotFoundError
+    if result == None:
+        raise ConsumptionsNotFoundError
         
     return result
 
@@ -35,12 +35,12 @@ def create_consumption(current_user: User, new_starting_date: date, new_ending_d
     
     if new_ending_date == None:
         new_consumption = ConsumptionHistory(
-        starting_date=new_starting_date,
-        si_measurement_unit=new_si_measurement_unit,
-        value=new_value,
-        creator_id=current_user.id,
-        creator=current_user.username
-        )
+            starting_date=new_starting_date,
+            si_measurement_unit=new_si_measurement_unit,
+            value=new_value,
+            creator_id=current_user.id,
+            creator=current_user.username
+            )
     else:
         new_consumption = ConsumptionHistory(
             starting_date=new_starting_date,
@@ -116,18 +116,18 @@ def edit_consumption(current_user: User,
     if current_user == None:
         raise UserNotFoundError
     
-    if new_value >= 0:
+    if (new_value != None) and (new_value <= 0):
         raise InvalidConsumptionValueError
     
-    to_edit = get_owned_consumption(current_user, target_consumption)
+    with get_session() as session:
+        to_edit = get_owned_consumption(session, current_user, target_consumption)
+
+        if (new_starting_date != None) and (new_starting_date > to_edit.ending_date):
+            raise InvalidDateError
+
+        if (new_ending_date != None) and (new_ending_date < to_edit.starting_date):
+            raise InvalidDateError
     
-    if new_starting_date > to_edit.ending_date:
-        raise InvalidDateError
-    
-    if new_ending_date < to_edit.starting_date:
-        raise InvalidDateError
-    
-    with get_session():
         if new_starting_date != None:
             to_edit.starting_date = new_starting_date
             
@@ -145,10 +145,7 @@ def delete_consumption(current_user: User, target_consumption: ConsumptionHistor
     if current_user == None:
         raise UserNotFoundError
     
-    if current_user == None:
-        raise UserNotFoundError
-    
-    to_delete = get_owned_consumption(current_user, target_consumption)
     with get_session() as session:
+        to_delete = get_owned_consumption(session, current_user, target_consumption)
         session.delete(to_delete)
         

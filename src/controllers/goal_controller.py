@@ -7,23 +7,23 @@ from datetime import date
 from typing import Optional
 from decimal import Decimal
 from sqlalchemy import select, and_
+from sqlalchemy.orm import Session
 
 # Irá causar um erro caso um user tente editar um consumo que não é dele!
-def get_owned_simulations(current_user: User, target_simulation: Goal):
+def get_owned_goals(session: Session, current_user: User, target_goal: Goal):
     stmt = select(Goal).where(
             and_(Goal.creator_id == current_user.id,
-                Goal.id == target_simulation.id))
+                Goal.id == target_goal.id))
+
+    result = session.scalar(stmt)
     
-    with get_session() as session:
-        result = session.scalar(stmt)
-        
-        if result == None:
-            raise ConsumptionsNotFoundError
+    if result == None:
+        raise ConsumptionsNotFoundError
         
     return result
 
 
-def create_simulation(current_user: User, new_starting_date: date, new_ending_date: date, new_si_measurement_unit: str, new_value: Decimal):
+def create_goal(current_user: User, new_starting_date: date, new_ending_date: date, new_si_measurement_unit: str, new_value: Decimal):
     if current_user == None:
         raise UserNotFoundError
     
@@ -33,7 +33,7 @@ def create_simulation(current_user: User, new_starting_date: date, new_ending_da
     if new_value <= 0:
         raise InvalidConsumptionValueError
     
-    new_simulation = Goal(
+    new_goal = Goal(
         starting_date=new_starting_date,
         ending_date=new_ending_date,
         si_measurement_unit=new_si_measurement_unit,
@@ -43,10 +43,10 @@ def create_simulation(current_user: User, new_starting_date: date, new_ending_da
         )
     
     with get_session() as session:
-        session.add(new_simulation)
+        session.add(new_goal)
     
     
-def get_user_simulations(current_user : User, 
+def get_user_goals(current_user : User, 
                                  target_measurement_unit: Optional[str] = None, 
                                  target_starting_date: Optional[date] = None,
                                  target_ending_date: Optional[date] = None,
@@ -84,16 +84,16 @@ def get_user_simulations(current_user : User,
     
     # All já trata os scalars como objetos separados, pois ele os consome inteiros
     with get_session() as session:
-        simulations = session.scalars(stmt).all()
+        goals = session.scalars(stmt).all()
         
-        if simulations == []:
+        if goals == []:
             raise ConsumptionsNotFoundError
         
-    return simulations
+    return goals
 
 
-def edit_simulation(current_user: User,
-                     target_simulation: Goal,
+def edit_goal(current_user: User,
+                     target_goal: Goal,
                      new_starting_date: Optional[date] = None,
                      new_ending_date: Optional[date] = None,
                      new_measurement_unit: Optional[str] = None,
@@ -101,18 +101,18 @@ def edit_simulation(current_user: User,
     if current_user == None:
         raise UserNotFoundError
     
-    if new_value >= 0:
+    if (new_value != None) and (new_value <= 0):
         raise InvalidConsumptionValueError
     
-    to_edit = get_owned_simulations(current_user, target_simulation)
+    with get_session() as session:
+        to_edit = get_owned_goals(session, current_user, target_goal)
+
+        if (new_starting_date != None) and (new_starting_date > to_edit.ending_date):
+            raise InvalidDateError
+
+        if (new_ending_date != None) and (new_ending_date < to_edit.starting_date):
+            raise InvalidDateError
     
-    if new_starting_date > to_edit.ending_date:
-        raise InvalidDateError
-    
-    if new_ending_date < to_edit.starting_date:
-        raise InvalidDateError
-    
-    with get_session():
         if new_starting_date != None:
             to_edit.starting_date = new_starting_date
             
@@ -126,14 +126,14 @@ def edit_simulation(current_user: User,
             to_edit.value = new_value
 
 
-def delete_simulation(current_user: User, target_consumption: Goal):
+def delete_goal(current_user: User, target_consumption: Goal):
     if current_user == None:
         raise UserNotFoundError
     
     if current_user == None:
         raise UserNotFoundError
     
-    to_delete = get_owned_simulations(current_user, target_consumption)
+    to_delete = get_owned_goals(session, current_user, target_consumption)
     with get_session() as session:
         session.delete(to_delete)
         
