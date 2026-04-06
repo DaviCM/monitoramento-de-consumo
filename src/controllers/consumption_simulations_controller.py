@@ -36,7 +36,7 @@ def create_simulation(current_user: User, new_starting_date: date, new_ending_da
     new_simulation = ConsumptionSimulation(
         starting_date=new_starting_date,
         ending_date=new_ending_date,
-        si_measurement_unit=new_si_measurement_unit,
+        si_measurement_unit=new_si_measurement_unit.lower(),
         value=new_value,
         creator_id=current_user.id,
         creator=current_user.username
@@ -71,7 +71,7 @@ def get_user_simulations(current_user : User,
     stmt = select(ConsumptionSimulation).where(ConsumptionSimulation.creator_id == current_user.id)
     
     if target_measurement_unit != None:
-        stmt = stmt.where(ConsumptionSimulation.si_measurement_unit == target_measurement_unit)
+        stmt = stmt.where(ConsumptionSimulation.si_measurement_unit == target_measurement_unit.lower())
     
     # comparação por igualdade ou maioridade, pois quero datas depois da data de início
     if target_starting_date != None:
@@ -125,7 +125,7 @@ def edit_simulation(current_user: User,
             to_edit.ending_date = new_ending_date
             
         if new_measurement_unit != None:
-            to_edit.si_measurement_unit = new_measurement_unit
+            to_edit.si_measurement_unit = new_measurement_unit.lower()
             
         if new_value != None:
             to_edit.value = new_value
