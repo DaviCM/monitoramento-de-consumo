@@ -10,10 +10,10 @@ from sqlalchemy import select, and_
 from sqlalchemy.orm import Session
 
 # Irá causar um erro caso um user tente editar um consumo que não é dele!
-def get_owned_goals(session: Session, current_user: User, target_goal: Goal):
+def get_owned_goals(session: Session, current_user: User, target_goal_id: int):
     stmt = select(Goal).where(
             and_(Goal.creator_id == current_user.id,
-                Goal.id == target_goal.id))
+                Goal.id == target_goal_id))
 
     result = session.scalar(stmt)
     
@@ -44,6 +44,9 @@ def create_goal(current_user: User, new_starting_date: date, new_ending_date: da
     
     with get_session() as session:
         session.add(new_goal)
+        session.flush()
+        
+    return new_goal
     
     
 def get_user_goals(current_user : User, 
@@ -93,7 +96,7 @@ def get_user_goals(current_user : User,
 
 
 def edit_goal(current_user: User,
-                     target_goal: Goal,
+                     target_goal_id: int,
                      new_starting_date: Optional[date] = None,
                      new_ending_date: Optional[date] = None,
                      new_measurement_unit: Optional[str] = None,
@@ -105,7 +108,7 @@ def edit_goal(current_user: User,
         raise InvalidConsumptionValueError
     
     with get_session() as session:
-        to_edit = get_owned_goals(session, current_user, target_goal)
+        to_edit = get_owned_goals(session, current_user, target_goal_id)
 
         if (new_starting_date != None) and (new_starting_date > to_edit.ending_date):
             raise InvalidDateError
@@ -124,16 +127,18 @@ def edit_goal(current_user: User,
             
         if new_value != None:
             to_edit.value = new_value
+            
+    return to_edit
 
 
-def delete_goal(current_user: User, target_consumption: Goal):
+def delete_goal(current_user: User, target_goal_id: int):
     if current_user == None:
         raise UserNotFoundError
     
     if current_user == None:
         raise UserNotFoundError
     
-    to_delete = get_owned_goals(session, current_user, target_consumption)
+    to_delete = get_owned_goals(session, current_user, target_goal_id)
     with get_session() as session:
         session.delete(to_delete)
         

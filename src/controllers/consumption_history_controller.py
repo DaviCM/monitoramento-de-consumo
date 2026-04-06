@@ -10,10 +10,10 @@ from sqlalchemy import select, and_
 from sqlalchemy.orm import Session
 
 # Irá causar um erro caso um user tente editar um consumo que não é dele!
-def get_owned_consumption(session: Session, current_user: User, target_consumption: ConsumptionHistory):
+def get_owned_consumption(session: Session, current_user: User, target_consumption_id: int):
     stmt = select(ConsumptionHistory).where(
             and_(ConsumptionHistory.creator_id == current_user.id,
-                ConsumptionHistory.id == target_consumption.id))
+                ConsumptionHistory.id == target_consumption_id))
     
     result = session.scalar(stmt)
         
@@ -53,7 +53,9 @@ def create_consumption(current_user: User, new_starting_date: date, new_ending_d
     
     with get_session() as session:
         session.add(new_consumption)
-    
+        session.flush()
+        
+    return new_consumption
 
 # Ideia muito eficiente da IA e do GitHub issues no SQLAlchemy
 # Criar apenas uma função de query, e utilizar os parâmetros conforme eles forem requisitados
@@ -108,7 +110,7 @@ def get_user_consumption_history(current_user : User,
 
 
 def edit_consumption(current_user: User,
-                     target_consumption: ConsumptionHistory,
+                     target_consumption_id: int,
                      new_starting_date: Optional[date] = None,
                      new_ending_date: Optional[date] = None,
                      new_measurement_unit: Optional[str] = None,
@@ -120,7 +122,7 @@ def edit_consumption(current_user: User,
         raise InvalidConsumptionValueError
     
     with get_session() as session:
-        to_edit = get_owned_consumption(session, current_user, target_consumption)
+        to_edit = get_owned_consumption(session, current_user, target_consumption_id)
 
         if (new_starting_date != None) and (new_starting_date > to_edit.ending_date):
             raise InvalidDateError
@@ -139,13 +141,15 @@ def edit_consumption(current_user: User,
             
         if new_value != None:
             to_edit.value = new_value
+            
+    return to_edit
 
 
-def delete_consumption(current_user: User, target_consumption: ConsumptionHistory):
+def delete_consumption(current_user: User, target_consumption_id: int):
     if current_user == None:
         raise UserNotFoundError
     
     with get_session() as session:
-        to_delete = get_owned_consumption(session, current_user, target_consumption)
+        to_delete = get_owned_consumption(session, current_user, target_consumption_id)
         session.delete(to_delete)
         

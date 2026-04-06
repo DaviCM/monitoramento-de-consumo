@@ -1,93 +1,127 @@
-from fastapi import APIRouter, Depends, HTTPException  # importar do fast api o roteador
+from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordRequestForm
+from fastapi_mail import FastMail, MessageSchema
+from jwt import ExpiredSignatureError, InvalidTokenError
 from src.models.user_model import User
-from src.database.session import get_session
-from src.schemas.user_schemas import UserSchema, UpdateUserSchema, Token
-from jwt import PyJWKClient
-from src.api.security import OAuth2PasswordRequestForm, create_acess_token
-from http import HTTPStatus
-from src.controllers.user_controller import login, create_user, edit_user_password, edit_user_real_name, edit_user_username, edit_user_email, delete_self
-from src.errors.user_errors import EmailAlreadyExistsError, AppError, UsernameAlreadyExistsError, UserNotFoundError, InvalidUsernameError, InvalidCredentialsError, InvalidEmailError
-from src.api.security import get_current_user
+from src.schemas.user_schemas import *
+from src.schemas.token_schemas import *
+from src.controllers.user_controller import *
+from src.errors.user_errors import *
+from src.api.security import *
+from src.api.email_config import conf
 
-user_router = APIRouter(prefix= "/users", tags= ["usuarios"])
+user_router = APIRouter(prefix="/users", tags=["usuarios"])
 
-@user_router.post("/criar_usuario")
-async def register_user(user_schema: UserSchema):
- try:
-    create_user(user_schema.username, user_schema.email, user_schema.password, user_schema.real_name)
- except EmailAlreadyExistsError as e:
-    raise HTTPException(status_code=e.status_code, detail=e.message)
- 
- except UsernameAlreadyExistsError as e:
-    raise HTTPException(status_code=e.status_code, detail=e.message) 
- 
- except InvalidEmailError as e:
-    raise HTTPException(status_code=e.status_code, detail=e.message)
- 
- except InvalidUsernameError as e:
-    raise HTTPException(status_code=e.status_code, detail=e.message)
- 
- return {"mensagem" : "usuário cadastrado com sucesso  "}
-    
-
-@user_router.put("/editar_usuario")
-async def update_user(user_schema: UpdateUserSchema):
-  if user_schema.new_name is not None:
-   try:
-     edit_user_username(user_schema.new_name)
-   except UsernameAlreadyExistsError as e:
-    raise HTTPException(status_code=e.status_code, detail=e.message) 
-   
-  elif user_schema.new_password is not None:
+@user_router.post(prefix="/criar_usuario", status_code=status.HTTP_201_CREATED, response_model=ResponseUserSchema)
+async def create_user_route(new_user: UserSchema):
     try:
-     edit_user_password(user_schema.new_password)
-    except InvalidCredentialsError as e:
-     raise HTTPException(status_code=e.status_code, detail=e.message) 
+        return create_user(new_user.real_name, 
+                           new_user.username, 
+                           new_user.email, 
+                           new_user.password)
+        
+    except EmailAlreadyExistsError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
     
-  elif user_schema.new_email is not None:
+    except UsernameAlreadyExistsError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+    
+    except InvalidEmailError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+    
+    except InvalidUsernameError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+
+
+
+@user_router.patch(prefix="/editar_usuario", status_code=status.HTTP_200_OK, response_model=ResponseUserSchema)
+async def edit_user_route(params: UpdateUserSchema, current_user: User = Depends(get_current_user)):
     try:
-     edit_user_email(user_schema.new_email)
+        return edit_user(current_user=current_user,
+                         new_real_name=params.new_real_name,
+                         new_username=params.new_username,
+                         new_email=params.new_email,
+                         new_password=params.new_password)
+            
+    except UserNotFoundError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+    
+    except InvalidUsernameError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+    
+    except UsernameAlreadyExistsError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+    
+    except InvalidEmailError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+    
+    except EmailAlreadyExistsError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+
+
+
+@user_router.delete(prefix="/deletar_usuario", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_user_route(current_user: User = Depends(get_current_user)):
+    try:
+        delete_self(current_user)
+        
+    except UserNotFoundError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+
+
+
+@user_router.post(prefix="/login_usuario_token", status_code=status.HTTP_302_FOUND, response_model=Token)
+async def login_route(form_data: OAuth2PasswordRequestForm = Depends()):
+    try:
+        token = login(form_data.username, form_data.password)
+        return {'access_token': token, 'token_type': 'bearer'}
+    
+    except UserNotFoundError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+    
     except InvalidCredentialsError as e:
-     raise HTTPException(status_code=e.status_code, detail=e.message)
+        raise HTTPException(status_code=e.status_code, detail=e.message)
 
-  elif user_schema.real_name is not None:
-   try:
-     edit_user_real_name(user_schema.real_name)
-   except UsernameAlreadyExistsError as e:
-     raise HTTPException(status_code=e.status_code, detail=e.message)
 
-   return{"mensagem" : "usuário editado com sucesso  "}
+
+@user_router.post(prefix="/esqueci_a_senha", status_code=status.HTTP_204_NO_CONTENT)
+async def forgotten_password(user_email):
+    try:
+        user = get_user_by_email(user_email)
+        token = create_recovery_token(user)
+        
+        message = MessageSchema(
+            subject="Redefinição de senha",
+            recipients=[user_email],
+            # Esse token estará no link, por isso ele pode ser passado como parâmetro direto na função abaixo
+            body=f"Aqui o token para redefinição de senha: {token}",
+            subtype="plain"
+        )
+        
+        fm = FastMail(conf)
+        await fm.send_message(message)
+        
+    except UserNotFoundError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
     
 
-@user_router.delete("/excluir_usuario")
-async def delete_user(user_schema: get_current_user):
-  try:
-    delete_self(user_schema,get_current_user)
-  except UserNotFoundError as e:
-    raise HTTPException(status_code=e.status_code, detail=e.message)
-  return{"mensagem" : "usuário excluído com sucesso !"}
-  
+@user_router.post(prefix='/recuperacao_de_senha', status_code=status.HTTP_200_OK, response_model=ResponseUserSchema)
+async def password_recovery(new_password: str, token: str):
+    try:
+        current_user = get_user_to_recover(token)
+        
+        return edit_user(current_user=current_user,
+                         new_password=new_password)
     
-@user_router.post("/login_usuario_token", response_model=Token)
-async def login_user(form_data: OAuth2PasswordRequestForm):
-  try:
-    access_token = login(form_data.username, form_data.password)
-
-  except UserNotFoundError as e:
-    raise HTTPException(status_code=e.status_code, detail=e.message)
- 
-  except InvalidCredentialsError as e:
-    raise HTTPException(status_code=e.status_code, detail=e.message)
- 
-  return {'acess_token': access_token, 'token_type' : 'bearer'}
- 
-
-@user_router.post("esqueci_a_senha")
-async def forgotten_password(user_schema: UserSchema):
- pass
-
-
-
-   
-
-
+    except UserNotFoundError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+    
+    except ExpiredSignatureError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='O tempo para recuperação expirou. Por favor, tente novamente.')
+    
+    except InvalidTokenError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Houve uma falha ao tentar recuperar a senha. Por favor, tente novamente.')
+    
+    
+    
+    

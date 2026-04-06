@@ -1,5 +1,5 @@
 from fastapi.security import OAuth2PasswordBearer
-from fastapi import Depends, HTTPException 
+from fastapi import Depends
 from datetime import datetime, timezone, timedelta
 from dotenv import load_dotenv
 from datetime import timedelta
@@ -29,14 +29,42 @@ def create_access_token(current_user: User):
     encoded_jwt = jwt.encode(headers=header,
                              payload=payload,
                              algorithm=os.getenv('ALGORITHM'),
-                             key=os.getenv('SECRET_TOKEN_KEY'))
+                             key=os.getenv('ACCESS_TOKEN_KEY'))
 
     return encoded_jwt
 
 
 def get_current_user(token: str = Depends(oauth2_scheme)):
     to_decode = jwt.decode(jwt=token,
-                           key=os.getenv('SECRET_TOKEN_KEY'),
+                           key=os.getenv('ACCESS_TOKEN_KEY'),
+                           algorithms=[os.getenv('ALGORITHM')])
+    
+    user_id = to_decode.get('sub')
+    current_user = get_user_by_id(user_id)
+    
+    return current_user
+
+
+def create_recovery_token(user_to_recover: User):
+    expire = datetime.now(tz=timezone.utc) + timedelta(minutes=(int(os.getenv('RECOVERY_TOKEN_EXPIRE_MINUTES'))))
+    
+    header = {"alg": os.getenv('ALGORITHM'),
+              "typ": "JWT",}
+    
+    payload = {'exp': expire,
+               'sub': user_to_recover.id,}
+    
+    encoded_jwt = jwt.encode(headers=header,
+                             payload=payload,
+                             algorithm=os.getenv('ALGORITHM'),
+                             key=os.getenv('RECOVERY_TOKEN_KEY'))
+
+    return encoded_jwt
+
+
+def get_user_to_recover(token):
+    to_decode = jwt.decode(jwt=token,
+                           key=os.getenv('RECOVERY_TOKEN_KEY'),
                            algorithms=[os.getenv('ALGORITHM')])
     
     user_id = to_decode.get('sub')

@@ -1,57 +1,94 @@
-from fastapi import APIRouter, Depends, HTTPException # importar do fast api o roteador
-from src.models.goal_model import Goal
-from src.database.session import get_session
-from src.schemas.goals_schemas import GoalsSchema, UpdateGoalsSchema
+from fastapi import APIRouter, Depends, HTTPException, status
+from src.models.user_model import User
+from src.controllers.goal_controller import *
+from src.schemas.goals_schemas import *
+from src.errors.consumption_errors import *
+from src.errors.user_errors import UserNotFoundError
+from src.api.security import get_current_user
 
+goals_router = APIRouter(prefix="/goals", tags=["metas"])
 
-goals_router = APIRouter(prefix= "/goals", tags= ["metas"])
-
-@goals_router.post("/criar_metas")
-async def create_goals(goals_schema: GoalsSchema, session = Depends(get_session)):
-     new_goal = Goal(
-    starting_date=goals_schema.starting_date,
-    ending_date=goals_schema.ending_date,
-    si_measurement_unit=goals_schema.si_measurement_unit,
-    value=goals_schema.value
-)
-     session.add(new_goal)
-     session.commit()
-     return{"mensagem": "Meta cadastrada com sucesso"}
-
-
-@goals_router.get("/listar_metas")
-async def list_goals(session = Depends(get_session)):
-    goals_list = session.query(GoalsSchema).all()
-    if not goals_list:
-        raise HTTPException(status_code=404, detail="Metas não encontradas")
-    else:
-        return{"mensagem": goals_list }
-
-@goals_router.put("/editar_meta_de_consumo")
-async def change_consumption(goals_schema: UpdateGoalsSchema , session = Depends(get_session)):
-    goal = session.query(Goal).filter(Goal.id == goals_schema.id).first()
-    if not goal:
-        raise HTTPException(status_code=404, detail = "Registros de consumo não encontrado")
-    if goals_schema.new_starting_date is not None:
-            goal.starting_date = goals_schema.new_starting_date
-    if goals_schema.new_ending_date is not None:
-            goal.ending_date = goals_schema.new_ending_date
-    if goals_schema.new_si_measurement_unit is not None:
-            goal.si_measurement_unit = goals_schema.new_si_measurement_unit
-    if goals_schema.value is not None:
-            goal.value = goals_schema.new_value
-    session.commit()
-    return{"mensagem" : "Metas de consumo alterados com sucesso"}
-
-
-@goals_router.delete("/deletar_meta/{id}")
-async def delete_goals(id: int, session = Depends(get_session)):
-    goals = session.query(Goal).filter(Goal. id == id).first()
-    if not goals:
-        raise HTTPException(status_code=404, detail="Metas não encontradas")
-    else:
-        session.delete(goals)
-        session.commit()
-        return {"mensagem": "Meta excluída com sucesso  "}
+@goals_router.post(prefix="/criar_meta", status_code=status.HTTP_201_CREATED, response_model=ResponseGoalSchema)
+async def create_goal_route(to_create: GoalSchema, current_user: User = Depends(get_current_user)):
+    try:
+        return create_goal(current_user=current_user,
+                           new_starting_date=to_create.starting_date,
+                           new_ending_date=to_create.ending_date,
+                           new_si_measurement_unit=to_create.si_measurement_unit,
+                           new_value=to_create.value
+                           )
+        
+    except UserNotFoundError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
     
+    except InvalidDateError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+    
+    except InvalidConsumptionValueError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+
+
+
+@goals_router.get(prefix="/listar_metas", status_code=status.HTTP_200_OK, response_model=list[ResponseGoalSchema])
+async def list_goals_route(params: QueryGoalSchema, current_user: User = Depends(get_current_user)):
+    try:
+        return get_user_goals(current_user=current_user,
+                              target_measurement_unit=params.measurement_unit,
+                              target_starting_date=params.starting_date,
+                              target_ending_date=params.ending_date,
+                              minimum_value=params.minimum_value,
+                              maximum_value=params.maximum_value
+                              )
+        
+    except UserNotFoundError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+        
+    except ConsumptionsNotFoundError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+    
+    except InvalidConsumptionValueError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+        
+    except InvalidDateError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+    
+
+
+@goals_router.patch(prefix="/editar_meta/{id}", status_code=status.HTTP_200_OK, response_model=ResponseGoalSchema)
+async def edit_goal_route(id: int, params: UpdateGoalSchema, current_user: User = Depends(get_current_user)):
+    try:
+        return edit_goal(current_user=current_user,
+                         target_simulation=id,
+                         new_starting_date=params.new_starting_date,
+                         new_ending_date=params.new_ending_date,
+                         new_measurement_unit=params.new_si_measurement_unit,
+                         new_value=params.new_value
+                         )
+        
+    except UserNotFoundError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+    
+    except ConsumptionsNotFoundError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+    
+    except InvalidDateError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+    
+    except InvalidConsumptionValueError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+    
+
+
+@goals_router.delete(prefix="/deletar_meta/{id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_goal_route(id: int, current_user: User = Depends(get_current_user)):
+    try:
+        delete_goal(current_user=current_user, 
+                    target_goal_id=id
+                    )
+        
+    except UserNotFoundError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+    
+    except ConsumptionsNotFoundError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
 

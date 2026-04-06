@@ -9,7 +9,8 @@ def username_already_exists(verifying_username):
     
     with get_session() as session:
         result = session.scalar(stmt)
-        return result != None
+        
+    return result != None
 
 
 def verify_username(username):

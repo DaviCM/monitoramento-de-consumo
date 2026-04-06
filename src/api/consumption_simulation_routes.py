@@ -1,9 +1,12 @@
-from fastapi import APIRouter, Depends, HTTPException, status # importar do fast api o roteador
+from fastapi import APIRouter, Depends, HTTPException, status
+from src.models.user_model import User
 from src.controllers.consumption_simulations_controller import *
 from src.schemas.consumption_simulation_schemas import *
+from src.errors.consumption_errors import *
+from src.errors.user_errors import UserNotFoundError
 from src.api.security import get_current_user
 
-consumption_simulation_router = APIRouter(prefix= "/simulacoes", tags=["Simulações"])
+consumption_simulation_router = APIRouter(prefix= "/simulacoes", tags=["simulações"])
 
 @consumption_simulation_router.post(prefix="/criar_simulacao", status_code=status.HTTP_201_CREATED, response_model=ResponseSimulationSchema)
 async def create_simulation_route(to_create: SimulationSchema, current_user: User = Depends(get_current_user)):
@@ -83,7 +86,8 @@ async def edit_simulation_route(id: int, params: UpdateSimulationSchema, current
 async def delete_simulation_route(id: int, current_user: User = Depends(get_current_user)):
     try:
         delete_simulation(current_user=current_user,
-                          target_consumption_id=id)
+                          target_consumption_id=id
+                          )
     
     except UserNotFoundError as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)
