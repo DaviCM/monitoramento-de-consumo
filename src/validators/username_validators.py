@@ -5,7 +5,7 @@ from re import Match
 import re
 
 def username_already_exists(verifying_username):
-    stmt = select(User.username).where(User.email == verifying_username)
+    stmt = select(User.username).where(User.username == verifying_username)
     
     with get_session() as session:
         result = session.scalar(stmt)
