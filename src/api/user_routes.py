@@ -20,18 +20,20 @@ async def create_user_route(new_user: UserSchema):
                            new_user.email, 
                            new_user.password)
         
+    except InvalidEmailError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+    
     except EmailAlreadyExistsError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+    
+    except InvalidUsernameError as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)
     
     except UsernameAlreadyExistsError as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)
     
-    except InvalidEmailError as e:
+    except InvalidPasswordError as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)
-    
-    except InvalidUsernameError as e:
-        raise HTTPException(status_code=e.status_code, detail=e.message)
-
 
 
 @user_router.patch(path="/editar_usuario", status_code=status.HTTP_200_OK, response_model=ResponseUserSchema)
@@ -46,16 +48,19 @@ async def edit_user_route(params: UpdateUserSchema, current_user: User = Depends
     except UserNotFoundError as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)
     
+    except InvalidEmailError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+    
+    except EmailAlreadyExistsError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+    
     except InvalidUsernameError as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)
     
     except UsernameAlreadyExistsError as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)
     
-    except InvalidEmailError as e:
-        raise HTTPException(status_code=e.status_code, detail=e.message)
-    
-    except EmailAlreadyExistsError as e:
+    except InvalidPasswordError as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)
 
 
@@ -70,12 +75,12 @@ async def delete_user_route(current_user: User = Depends(get_current_user)):
 
 
 
-@user_router.post(path="/login_usuario_token", status_code=status.HTTP_302_FOUND, response_model=Token)
+@user_router.post(path="/login_usuario_token", status_code=status.HTTP_302_FOUND, response_model=AccessTokenSchema)
 async def login_route(form_data: OAuth2PasswordRequestForm = Depends()):
     try:
         user = login(form_data.username, form_data.password)
         token = create_access_token(user)
-        return {'access_token': token, 'token_type': 'bearer'}
+        return AccessTokenSchema(access_token=token, token_type='bearer')
     
     except UserNotFoundError as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)
@@ -94,7 +99,7 @@ async def forgotten_password(user_email):
         message = MessageSchema(
             subject="Redefinição de senha",
             recipients=[user_email],
-            # Esse token estará no link, por isso ele pode ser passado como parâmetro direto na função abaixo
+            # Esse token estará no link, por isso ele pode ser passado como parâmetro direto no botão abaixo
             body=f"Aqui o token para redefinição de senha: {token}",
             subtype="plain"
         )
@@ -109,6 +114,7 @@ async def forgotten_password(user_email):
 @user_router.post(path='/recuperacao_de_senha', status_code=status.HTTP_200_OK, response_model=ResponseUserSchema)
 async def password_recovery(new_password: str, token: str):
     try:
+        # Faz decode do token de recuperação
         current_user = get_user_to_recover(token)
         
         return edit_user(current_user=current_user,
