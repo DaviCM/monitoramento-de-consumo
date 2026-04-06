@@ -6,9 +6,9 @@ from src.errors.consumption_errors import *
 from src.errors.user_errors import UserNotFoundError
 from src.api.security import get_current_user
 
-consumption_real_router = APIRouter(prefix="/consumos", tags=["consumos"])
+consumption_real_router = APIRouter(prefix="/consumos", tags=["Consumos Reais"])
 
-@consumption_real_router.post(prefix="/criar_consumo", status_code=status.HTTP_201_CREATED, response_model=ResponseConsumptionSchema)
+@consumption_real_router.post(path="/criar_consumo", status_code=status.HTTP_201_CREATED, response_model=ResponseConsumptionSchema)
 async def create_consumption_route(consumo_real_schema: ConsumptionSchema, current_user: User = Depends(get_current_user)):
     try:
         return create_consumption(current_user=current_user,
@@ -28,7 +28,7 @@ async def create_consumption_route(consumo_real_schema: ConsumptionSchema, curre
 
 
 
-@consumption_real_router.get(prefix="/listar_consumos", status_code=status.HTTP_200_OK, response_model=list[ResponseConsumptionSchema])
+@consumption_real_router.get(path="/listar_consumos", status_code=status.HTTP_200_OK, response_model=list[ResponseConsumptionSchema])
 async def list_consumption_route(params: QueryConsumptionSchema, current_user: User = Depends(get_current_user)):
     try:
         return get_user_consumption_history(current_user=current_user,
@@ -53,7 +53,7 @@ async def list_consumption_route(params: QueryConsumptionSchema, current_user: U
 
 
 
-@consumption_real_router.patch(prefix="/editar_consumo/{id}", status_code=status.HTTP_200_OK, response_model=ResponseConsumptionSchema)
+@consumption_real_router.patch(path="/editar_consumo/{id}", status_code=status.HTTP_200_OK, response_model=ResponseConsumptionSchema)
 async def edit_consumption_route(id: int, params: UpdateConsumptionSchema, current_user: User = Depends(get_current_user)):
     try:
         return edit_consumption(current_user=current_user,
@@ -78,7 +78,7 @@ async def edit_consumption_route(id: int, params: UpdateConsumptionSchema, curre
 
 
 
-@consumption_real_router.delete(prefix="/deletar_consumo/{id}", status_code=status.HTTP_204_NO_CONTENT)
+@consumption_real_router.delete(path="/deletar_consumo/{id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_consumption_route(id: int, current_user: User = Depends(get_current_user)):
     try:
         delete_consumption(current_user=current_user, 

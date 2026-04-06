@@ -10,9 +10,9 @@ from src.errors.user_errors import *
 from src.api.security import *
 from src.api.email_config import conf
 
-user_router = APIRouter(prefix="/users", tags=["usuarios"])
+user_router = APIRouter(prefix="/users", tags=["Usuário"])
 
-@user_router.post(prefix="/criar_usuario", status_code=status.HTTP_201_CREATED, response_model=ResponseUserSchema)
+@user_router.post(path="/criar_usuario", status_code=status.HTTP_201_CREATED, response_model=ResponseUserSchema)
 async def create_user_route(new_user: UserSchema):
     try:
         return create_user(new_user.real_name, 
@@ -34,7 +34,7 @@ async def create_user_route(new_user: UserSchema):
 
 
 
-@user_router.patch(prefix="/editar_usuario", status_code=status.HTTP_200_OK, response_model=ResponseUserSchema)
+@user_router.patch(path="/editar_usuario", status_code=status.HTTP_200_OK, response_model=ResponseUserSchema)
 async def edit_user_route(params: UpdateUserSchema, current_user: User = Depends(get_current_user)):
     try:
         return edit_user(current_user=current_user,
@@ -60,7 +60,7 @@ async def edit_user_route(params: UpdateUserSchema, current_user: User = Depends
 
 
 
-@user_router.delete(prefix="/deletar_usuario", status_code=status.HTTP_204_NO_CONTENT)
+@user_router.delete(path="/deletar_usuario", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_user_route(current_user: User = Depends(get_current_user)):
     try:
         delete_self(current_user)
@@ -70,10 +70,11 @@ async def delete_user_route(current_user: User = Depends(get_current_user)):
 
 
 
-@user_router.post(prefix="/login_usuario_token", status_code=status.HTTP_302_FOUND, response_model=Token)
+@user_router.post(path="/login_usuario_token", status_code=status.HTTP_302_FOUND, response_model=Token)
 async def login_route(form_data: OAuth2PasswordRequestForm = Depends()):
     try:
-        token = login(form_data.username, form_data.password)
+        user = login(form_data.username, form_data.password)
+        token = create_access_token(user)
         return {'access_token': token, 'token_type': 'bearer'}
     
     except UserNotFoundError as e:
@@ -84,7 +85,7 @@ async def login_route(form_data: OAuth2PasswordRequestForm = Depends()):
 
 
 
-@user_router.post(prefix="/esqueci_a_senha", status_code=status.HTTP_204_NO_CONTENT)
+@user_router.post(path="/esqueci_a_senha", status_code=status.HTTP_204_NO_CONTENT)
 async def forgotten_password(user_email):
     try:
         user = get_user_by_email(user_email)
@@ -105,7 +106,7 @@ async def forgotten_password(user_email):
         raise HTTPException(status_code=e.status_code, detail=e.message)
     
 
-@user_router.post(prefix='/recuperacao_de_senha', status_code=status.HTTP_200_OK, response_model=ResponseUserSchema)
+@user_router.post(path='/recuperacao_de_senha', status_code=status.HTTP_200_OK, response_model=ResponseUserSchema)
 async def password_recovery(new_password: str, token: str):
     try:
         current_user = get_user_to_recover(token)

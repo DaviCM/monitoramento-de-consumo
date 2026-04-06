@@ -30,6 +30,7 @@ pydantic-settings==2.13.1
 pydantic_core==2.41.5
 PyJWT==2.12.1
 python-dotenv==1.2.1
+python-multipart==0.0.24
 regex==2025.11.3
 SQLAlchemy==2.0.46
 starlette==0.50.0

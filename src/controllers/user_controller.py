@@ -2,7 +2,6 @@ from src.models.user_model import User
 from src.database.session import get_session
 from src.errors.user_errors import *
 from src.validators import email_validators, password_validators, username_validators
-from src.api.security import create_access_token
 from sqlalchemy import select
 from argon2 import PasswordHasher
 from typing import Optional
@@ -54,7 +53,7 @@ def login(user_email, user_password):
     if verify_password(hashed_password, user_password) == False:
         raise InvalidCredentialsError
     else:
-        return create_access_token(returned_user)
+        return returned_user
 
 
 def edit_user(current_user: User,
