@@ -1,15 +1,41 @@
-from pydantic import BaseModel
-from datetime import datetime
+from pydantic import BaseModel, ConfigDict
+from datetime import date
+from decimal import Decimal
 from typing import Optional
 
-class Consumo_Simulation_Schema(BaseModel):
-    starting_date: datetime
-    ending_date:  datetime
-    value: float
-    si_measurement_unit:  int
+class SimulationSchema(BaseModel):
+    starting_date: date
+    ending_date: date
+    si_measurement_unit: str
+    value: Decimal
 
-class Consumption_Simulation_UpdateSchema(BaseModel):
-    new_starting_date: Optional[datetime] = None
-    new_ending_date: Optional[datetime] = None
-    new_si_measurement_unit: Optional[str] = None
-    new_value: Optional[float] = None
+
+
+class UpdateSimulationSchema(BaseModel):
+    new_starting_date: Optional[date]
+    new_ending_date: Optional[date]
+    new_si_measurement_unit: Optional[str]
+    new_value: Optional[Decimal]
+    
+
+
+class ResponseSimulationSchema(BaseModel):
+    # SQLAlchemy retorna Sequence[ConsumptionSimulation], que é uma lista de todos os objetos de simulação encontrados
+    # Isso aqui permite que o Pydantic automaticamente pegue os dados retirados de uma lista de objetos e transforme em JSON
+    # Basicamente ele cria um JSON completo para cada elemento da lista de objetos que o SQLAlchemy retorna
+    model_config = (ConfigDict(from_attributes=True))
+    
+    id: int
+    starting_date: date
+    ending_date: date
+    measurement_unit: str
+    value: Decimal
+    
+    
+
+class QuerySimulationSchema(BaseModel):
+    measurement_unit: Optional[str]
+    starting_date: Optional[date]
+    ending_date: Optional[date]
+    minimum_value: Optional[Decimal]
+    maximum_value: Optional[Decimal]

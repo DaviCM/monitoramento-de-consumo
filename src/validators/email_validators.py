@@ -8,7 +8,8 @@ def email_already_exists(verifying_email):
     
     with get_session() as session:
         result = session.scalar(stmt)
-        return result != None
+        
+    return result != None
 
 
 def verify_email(email):

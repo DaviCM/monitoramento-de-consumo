@@ -12,4 +12,4 @@ class ConsumptionHistory(Base):
     value = Column(Numeric(precision=10, scale=2), default=0)
     
     creator_id = Column(ForeignKey('users.id', ondelete='cascade'))
-    creator = relationship('User', back_populates='users.id')
+    creator = relationship('User', back_populates='user_consumption_history')

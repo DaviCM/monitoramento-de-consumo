@@ -4,6 +4,8 @@ from src.errors.user_errors import *
 from src.validators import email_validators, password_validators, username_validators
 from sqlalchemy import select
 from argon2 import PasswordHasher
+from typing import Optional
+
 
 argon2 = PasswordHasher()
 
@@ -33,6 +35,9 @@ def create_user(new_real_name, new_username, new_email, new_password):
 
     with get_session() as session:
         session.add(new_user)
+        session.flush()
+        
+    return new_user
         
 
 def login(user_email, user_password):
@@ -51,32 +56,44 @@ def login(user_email, user_password):
         return returned_user
 
 
-def edit_user_real_name(current_user: User, new_real_name):
+def edit_user(current_user: User,
+              new_real_name: Optional[str] = None,
+              new_username: Optional[str] = None,
+              new_email: Optional[str] = None,
+              new_password: Optional[str] = None,
+              ):
+    
     if current_user == None:
         raise UserNotFoundError
     
-    with get_session():
-        current_user.real_name = new_real_name
+    if (new_username != None) and (username_validators.verify_username(new_username) == False):
+        raise InvalidUsernameError
     
-    
-def edit_user_username(current_user: User, new_username):
-    if current_user == None:
-        raise UserNotFoundError
-    
-    if username_validators.username_already_exists(new_username) == True:
+    if (new_username != None) and (username_validators.username_already_exists(new_username) == True):
         raise UsernameAlreadyExistsError
-    
-    with get_session():
-        current_user.username = new_username
-        
 
-def edit_user_password(current_user: User, new_password):
-    if current_user == None:
-        raise UserNotFoundError
+    if (new_email != None) and (email_validators.verify_email(new_email) == False):
+        raise InvalidEmailError
+    
+    if (new_email != None) and (email_validators.email_already_exists(new_email) == True):
+        raise EmailAlreadyExistsError
+    
     
     with get_session():
-        current_user.password = argon2.hash(new_password)
+        if new_real_name != None:
+            current_user.real_name = new_real_name
         
+        if new_username != None:
+            current_user.username = new_username
+            
+        if new_email != None:
+            current_user.email = new_email
+        
+        if new_password != None:
+            current_user.password = argon2.hash(new_password)
+
+    return current_user
+
 
 def delete_self(current_user: User):
     if current_user == None:
@@ -84,5 +101,27 @@ def delete_self(current_user: User):
     
     with get_session() as session:
             session.delete(current_user)
+
+
+def get_user_by_id(target_id):
+    stmt = select(User).where(User.id == target_id)
+    with get_session() as session:
+        user = session.scalar(stmt)
+        
+    if user == None:
+        raise UserNotFoundError
+        
+    return user
+  
+
+def get_user_by_email(email: str):
+    stmt = select(User).where(User.email == email)
+    with get_session() as session:
+        user = session.scalar(stmt)
+        
+    if user is None:
+        raise UserNotFoundError
+    
+    return user
     
     
