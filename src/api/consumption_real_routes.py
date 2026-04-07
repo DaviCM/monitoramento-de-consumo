@@ -4,7 +4,7 @@ from src.controllers.consumption_history_controller import *
 from src.schemas.consumption_real_schemas import *
 from src.errors.consumption_errors import *
 from src.errors.user_errors import UserNotFoundError
-from src.api.security import get_current_user
+from src.auth.access_token_auth import get_current_user
 
 consumption_real_router = APIRouter(prefix="/consumos", tags=["Consumos Reais"])
 

@@ -7,10 +7,12 @@ from src.schemas.user_schemas import *
 from src.schemas.token_schemas import *
 from src.controllers.user_controller import *
 from src.errors.user_errors import *
-from src.api.security import *
-from src.api.email_config import conf
+from src.auth.access_token_auth import *
+from src.auth.recovery_token_auth import *
+from src.auth.refresh_token_auth import *
+from src.auth.email_config import conf
 
-user_router = APIRouter(prefix="/users", tags=["Usuário"])
+user_router = APIRouter(prefix="/usuarios", tags=["Usuário"])
 
 @user_router.post(path="/criar_usuario", status_code=status.HTTP_201_CREATED, response_model=ResponseUserSchema)
 async def create_user_route(new_user: UserSchema):
@@ -75,17 +77,34 @@ async def delete_user_route(current_user: User = Depends(get_current_user)):
 
 
 
-@user_router.post(path="/login_usuario_token", status_code=status.HTTP_302_FOUND, response_model=AccessTokenSchema)
+@user_router.post(path="/login_usuario_token", status_code=status.HTTP_200_OK, response_model=ResponseTokensSchema)
 async def login_route(form_data: OAuth2PasswordRequestForm = Depends()):
     try:
         user = login(form_data.username, form_data.password)
-        token = create_access_token(user)
-        return AccessTokenSchema(access_token=token, token_type='bearer')
+        access_token = create_access_token(user)
+        refresh_token = create_refresh_token(user)
+        
+        # token_type é utilizado pelo oauth apenas no access token, então pode ser enviado apenas uma vez.
+        return ResponseTokensSchema(access_token=access_token,
+                                    refresh_token=refresh_token,
+                                    token_type='bearer')
     
     except UserNotFoundError as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)
     
     except InvalidCredentialsError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+
+
+
+@user_router.post(path='/regerar_token', status_code=status.HTTP_200_OK, response_model=ResponseAccessTokenSchema)
+async def refresh_route(refresh_token: str):
+    try:
+        new_access_token = refresh_current_user(refresh_token)
+        return ResponseAccessTokenSchema(access_token=new_access_token, 
+                                         token_type='bearer')
+    
+    except UserNotFoundError as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)
 
 
@@ -110,8 +129,9 @@ async def forgotten_password(user_email):
     except UserNotFoundError as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)
     
+    
 
-@user_router.post(path='/recuperacao_de_senha', status_code=status.HTTP_200_OK, response_model=ResponseUserSchema)
+@user_router.post(path='/recuperar_senha', status_code=status.HTTP_200_OK, response_model=ResponseUserSchema)
 async def password_recovery(new_password: str, token: str):
     try:
         # Faz decode do token de recuperação
@@ -122,12 +142,6 @@ async def password_recovery(new_password: str, token: str):
     
     except UserNotFoundError as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)
-    
-    except ExpiredSignatureError:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='O tempo para recuperação expirou. Por favor, tente novamente.')
-    
-    except InvalidTokenError:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Houve uma falha ao tentar recuperar a senha. Por favor, tente novamente.')
     
     
     
