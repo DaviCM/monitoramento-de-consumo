@@ -6,7 +6,7 @@ from datetime import timedelta
 from src.models.user_model import User
 from src.controllers.user_controller import get_user_by_id
 from src.errors.user_errors import *
-from jwt import ExpiredSignatureError, InvalidTokenError, err
+from jwt import ExpiredSignatureError, InvalidTokenError
 import jwt
 
 import os
