@@ -38,7 +38,7 @@ async def create_user_route(new_user: UserSchema):
         raise HTTPException(status_code=e.status_code, detail=e.message)
 
 
-@user_router.get(path='usuario_logado_info', status_code=status.HTTP_200_OK, response_model=ResponseUserSchema)
+@user_router.get(path='/info_usuario_logado', status_code=status.HTTP_200_OK, response_model=ResponseUserSchema)
 async def current_user_info(current_user: User = Depends(get_current_user)):
     try:
         return ResponseUserSchema(id=current_user.id,
