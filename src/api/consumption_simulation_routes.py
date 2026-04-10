@@ -4,7 +4,7 @@ from src.controllers.consumption_simulations_controller import *
 from src.schemas.consumption_simulation_schemas import *
 from src.errors.consumption_errors import *
 from src.errors.user_errors import UserNotFoundError
-from src.api.security import get_current_user
+from src.auth.access_token_auth import get_current_user
 
 consumption_simulation_router = APIRouter(prefix= "/simulacoes", tags=["Simulações de Consumo"])
 

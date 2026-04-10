@@ -26,6 +26,9 @@ def create_user(new_real_name, new_username, new_email, new_password):
     if username_validators.username_already_exists(new_username) == True:
         raise UsernameAlreadyExistsError
     
+    if password_validators.verify_password(new_password) == False:
+        raise InvalidPasswordError
+    
     new_user = User(
         real_name=new_real_name,
         username=new_username,
@@ -77,6 +80,9 @@ def edit_user(current_user: User,
     
     if (new_email != None) and (email_validators.email_already_exists(new_email) == True):
         raise EmailAlreadyExistsError
+    
+    if (new_password != None) and (password_validators.verify_password(new_password) == False):
+        raise InvalidPasswordError
     
     
     with get_session():
