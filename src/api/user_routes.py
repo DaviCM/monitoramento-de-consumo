@@ -38,6 +38,19 @@ async def create_user_route(new_user: UserSchema):
         raise HTTPException(status_code=e.status_code, detail=e.message)
 
 
+@user_router.get(path='usuario_logado_info', status_code=status.HTTP_200_OK, response_model=ResponseUserSchema)
+async def current_user_info(current_user: User = Depends(get_current_user)):
+    try:
+        return ResponseUserSchema(id=current_user.id,
+                                  real_name=current_user.real_name,
+                                  username=current_user.username,
+                                  email=current_user.email,
+                                  created_at=current_user.created_at)
+    
+    except UserNotFoundError as e:
+        raise(HTTPException(status_code=e.status_code, detail=e.message))
+
+
 @user_router.patch(path="/editar_usuario", status_code=status.HTTP_200_OK, response_model=ResponseUserSchema)
 async def edit_user_route(params: UpdateUserSchema, current_user: User = Depends(get_current_user)):
     try:
