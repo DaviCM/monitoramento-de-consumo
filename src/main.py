@@ -5,7 +5,6 @@ from src.api.consumption_simulation_routes import consumption_simulation_router
 from src.api.goals_routes import goals_router
 from src.api.tip_routes import tip_router
 
-
 app = FastAPI()
 
 app.include_router(user_router)

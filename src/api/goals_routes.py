@@ -4,9 +4,9 @@ from src.controllers.goal_controller import *
 from src.schemas.goals_schemas import *
 from src.errors.consumption_errors import *
 from src.errors.user_errors import UserNotFoundError
-from src.api.security import get_current_user
+from src.auth.access_token_auth import get_current_user
 
-goals_router = APIRouter(prefix="/goals", tags=["Metas de Consumo"])
+goals_router = APIRouter(prefix="/metas", tags=["Metas de Consumo"])
 
 @goals_router.post(path="/criar_meta", status_code=status.HTTP_201_CREATED, response_model=ResponseGoalSchema)
 async def create_goal_route(to_create: GoalSchema, current_user: User = Depends(get_current_user)):

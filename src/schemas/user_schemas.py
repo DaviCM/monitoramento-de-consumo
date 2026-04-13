@@ -1,4 +1,5 @@
 from pydantic import BaseModel, EmailStr, ConfigDict
+from datetime import datetime
 from typing import Optional
 
 class UserSchema(BaseModel):
@@ -24,6 +25,7 @@ class ResponseUserSchema(BaseModel):
     real_name: str
     username: str
     email: EmailStr
+    created_at: datetime
 
 
 class LoginSchema(BaseModel):
