@@ -1,15 +1,17 @@
-from fastapi.security import OAuth2PasswordBearer
-from fastapi import Depends, HTTPException, status
+import os
 from datetime import datetime, timezone, timedelta
-from dotenv import load_dotenv
-from datetime import timedelta
-from src.models.user_model import User
-from src.controllers.user_controller import get_user_by_id
-from src.errors.user_errors import *
+from uuid import uuid4
+
 from jwt import ExpiredSignatureError, InvalidTokenError
 import jwt
+from fastapi.security import OAuth2PasswordBearer
+from fastapi import Depends, HTTPException, status
+from dotenv import load_dotenv
 
-import os
+from src.models.user_model import User
+from src.controllers.user_controller import get_user_by_id
+from src.redis.redis_client import redis_client
+from src.errors.user_errors import *
 
 load_dotenv()
 
@@ -21,12 +23,14 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/usuarios/login_usuario_token")
 
 def create_access_token(current_user: User):
     expire = datetime.now(tz=timezone.utc) + timedelta(minutes=(int(os.getenv('ACCESS_TOKEN_EXPIRE_MINUTES'))))
+    jti = str(uuid4())
     
     header = {"alg": os.getenv('ALGORITHM'),
               "typ": "JWT",}
     
     payload = {'exp': expire,
-               'sub': current_user.id,
+               'sub': str(current_user.id),
+               'jti': jti,
                'type': 'access'}
     
     encoded_jwt = jwt.encode(headers=header,
@@ -39,19 +43,26 @@ def create_access_token(current_user: User):
 
 def get_current_user(token: str = Depends(oauth2_scheme)):
     try:
-        to_decode = jwt.decode(jwt=token,
+        decoded_token = jwt.decode(jwt=token,
                                key=os.getenv('ACCESS_TOKEN_KEY'),
                                algorithms=[os.getenv('ALGORITHM')])
         
-        if to_decode.get('type') != 'access':
-            raise WrongTokenTypeError
+        if decoded_token.get('type') != 'access':
+            raise InvalidTokenTypeError
+        
+        jti = decoded_token.get('jti')
+        if redis_client.exists(f'blacklisted:{jti}') == True:
+            raise BlacklistedTokenError
 
-        user_id = to_decode.get('sub')
+        user_id = int(decoded_token.get('sub'))
         current_user = get_user_by_id(user_id)
 
         return current_user
 
-    except WrongTokenTypeError as e:
+    except InvalidTokenTypeError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+    
+    except BlacklistedTokenError as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)
     
     except ExpiredSignatureError:
@@ -60,3 +71,5 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
     except InvalidTokenError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Houve uma falha ao autenticar seu usuário. Por favor, tente novamente.')
 
+
+# Lembrete: o campo 'sub' do JWT tem que ser uma string, então devemos mudar isso em todo o sistema e converter quando necessário.

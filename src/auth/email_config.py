@@ -1,5 +1,6 @@
-from fastapi_mail import ConnectionConfig
 import os
+
+from fastapi_mail import ConnectionConfig
 from dotenv import load_dotenv
 
 load_dotenv()
