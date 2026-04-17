@@ -19,7 +19,7 @@ load_dotenv()
 # Cria tokens que realizam as ações no sistema
 # Essa função pegará o token do header HTTP 'Authorization'
 # Especificamente o token gerado pela create_access_token e armazenado no frontend
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/usuarios/login_usuario_token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/usuarios/login_usuario")
 
 def create_access_token(current_user: User):
     expire = datetime.now(tz=timezone.utc) + timedelta(minutes=(int(os.getenv('ACCESS_TOKEN_EXPIRE_MINUTES'))))

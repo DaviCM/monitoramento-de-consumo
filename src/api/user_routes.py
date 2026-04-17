@@ -11,6 +11,7 @@ from src.auth.access_token_auth import *
 from src.auth.recovery_token_auth import *
 from src.auth.refresh_token_auth import *
 from src.auth.email_config import conf
+from src.auth.token_status_manager import blacklist_token
 
 user_router = APIRouter(prefix="/usuarios", tags=["Usuário"])
 
@@ -38,6 +39,7 @@ async def create_user_route(new_user: UserSchema):
         raise HTTPException(status_code=e.status_code, detail=e.message)
 
 
+
 @user_router.get(path='/info_usuario_logado', status_code=status.HTTP_200_OK, response_model=ResponseUserSchema)
 async def current_user_info(current_user: User = Depends(get_current_user)):
     try:
@@ -49,6 +51,7 @@ async def current_user_info(current_user: User = Depends(get_current_user)):
     
     except UserNotFoundError as e:
         raise(HTTPException(status_code=e.status_code, detail=e.message))
+
 
 
 @user_router.patch(path="/editar_usuario", status_code=status.HTTP_200_OK, response_model=ResponseUserSchema)
@@ -81,16 +84,18 @@ async def edit_user_route(params: UpdateUserSchema, current_user: User = Depends
 
 
 @user_router.delete(path="/deletar_usuario", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_user_route(current_user: User = Depends(get_current_user)):
+async def delete_user_route(refresh_token: str, access_token: str = Depends(oauth2_scheme), current_user: User = Depends(get_current_user)):
     try:
+        blacklist_token(token=access_token, token_type='access')
+        blacklist_token(token=refresh_token, token_type='refresh')
         delete_self(current_user)
         
     except UserNotFoundError as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)
+    
 
 
-
-@user_router.post(path="/login_usuario_token", status_code=status.HTTP_200_OK, response_model=ResponseTokensSchema)
+@user_router.post(path="/login_usuario", status_code=status.HTTP_200_OK, response_model=ResponseTokensSchema)
 async def login_route(form_data: OAuth2PasswordRequestForm = Depends()):
     try:
         user = login(form_data.username, form_data.password)
@@ -107,6 +112,13 @@ async def login_route(form_data: OAuth2PasswordRequestForm = Depends()):
     
     except InvalidCredentialsError as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)
+    
+
+
+@user_router.post(path='/logout_usuario', status_code=status.HTTP_204_NO_CONTENT)
+async def logout_route(refresh_token: str, access_token: str = Depends(oauth2_scheme), current_user: User = Depends(get_current_user)):
+    blacklist_token(token=access_token, token_type='access')
+    blacklist_token(token=refresh_token, token_type='refresh')
 
 
 
