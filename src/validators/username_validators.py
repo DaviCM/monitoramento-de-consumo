@@ -1,8 +1,10 @@
+import re
+from re import Match
+
+from sqlalchemy import select
+
 from src.database.session import get_session
 from src.models.user_model import User
-from sqlalchemy import select
-from re import Match
-import re
 
 def username_already_exists(verifying_username):
     stmt = select(User.username).where(User.username == verifying_username)

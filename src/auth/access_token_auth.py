@@ -2,8 +2,8 @@ import os
 from datetime import datetime, timezone, timedelta
 from uuid import uuid4
 
-from jwt import ExpiredSignatureError, InvalidTokenError
 import jwt
+from jwt import ExpiredSignatureError, InvalidTokenError
 from fastapi.security import OAuth2PasswordBearer
 from fastapi import Depends, HTTPException, status
 from dotenv import load_dotenv

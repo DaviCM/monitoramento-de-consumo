@@ -1,7 +1,8 @@
+import email_validator
+from sqlalchemy import select
+
 from src.database.session import get_session
 from src.models.user_model import User
-from sqlalchemy import select
-import email_validator
 
 def email_already_exists(verifying_email):
     stmt = select(User.email).where(User.email == verifying_email)

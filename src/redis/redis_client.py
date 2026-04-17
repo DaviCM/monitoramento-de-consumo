@@ -1,4 +1,5 @@
 import os
+
 from dotenv import load_dotenv
 from redis import Redis
 from redis.exceptions import ConnectionError

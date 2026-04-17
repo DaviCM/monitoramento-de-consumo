@@ -16,11 +16,11 @@ Essa aplicação é standalone como API, e não é dependente do frontend Liqua 
 - Persistência de dados em banco remoto e versionamento de base de dados com Alembic.
 
 ## Principais Tecnologias Utilizadas
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17.8-4169E1?style=plastic&logo=postgresql)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17.9-4169E1?style=plastic&logo=postgresql)
 
 ![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.0.46-D71F00?style=plastic&logo=sqlalchemy)
 
-![Python](https://img.shields.io/badge/Python-3.13.5-3776AB?style=plastic&logo=python)
+![Python](https://img.shields.io/badge/Python-3.13.13-3776AB?style=plastic&logo=python)
 
 ![Pydantic](https://img.shields.io/badge/Pydantic-2.12.5-E92063?style=plastic&logo=pydantic&logoColor=E92063)
 

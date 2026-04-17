@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, Date, func
+
 from src.database.base import Base
 
 class Tip(Base):

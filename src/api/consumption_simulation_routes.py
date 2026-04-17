@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+
 from src.models.user_model import User
 from src.controllers.consumption_simulations_controller import *
 from src.schemas.consumption_simulation_schemas import *

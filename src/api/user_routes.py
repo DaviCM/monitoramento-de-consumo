@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi_mail import FastMail, MessageSchema
-from jwt import ExpiredSignatureError, InvalidTokenError
+
 from src.models.user_model import User
 from src.schemas.user_schemas import *
 from src.schemas.token_schemas import *

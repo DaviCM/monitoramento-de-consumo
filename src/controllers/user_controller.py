@@ -1,10 +1,12 @@
+from typing import Optional
+
+from sqlalchemy import select
+from argon2 import PasswordHasher
+
 from src.models.user_model import User
 from src.database.session import get_session
 from src.errors.user_errors import *
 from src.validators import email_validators, password_validators, username_validators
-from sqlalchemy import select
-from argon2 import PasswordHasher
-from typing import Optional
 
 
 argon2 = PasswordHasher()

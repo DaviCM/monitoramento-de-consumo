@@ -1,5 +1,5 @@
-from re import Match
 import re
+from re import Match
 
 def verify_password(password):
     # ? é um lookahead, o que significa que ele verifica um padrão para os caracteres à frente.

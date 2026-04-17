@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException, status
+
 from src.models.tip_model import Tip
 from src.controllers.tip_controller import get_tip
 from src.schemas.tip_schemas import ResponseTipSchema

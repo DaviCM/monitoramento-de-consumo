@@ -1,10 +1,12 @@
+import json
+from random import choice
+
+from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
+
 from src.models.tip_model import Tip
 from src.database.session import get_session
 from src.errors.tip_errors import TipsNotFoundError
-from sqlalchemy import select
-from sqlalchemy.exc import IntegrityError
-from random import choice
-import json
 
 def create_tips():
     with open('src/editors/new_tips.json', 'r', encoding='utf-8') as file:
