@@ -11,7 +11,7 @@ from src.auth.access_token_auth import *
 from src.auth.recovery_token_auth import *
 from src.auth.refresh_token_auth import *
 from src.auth.email_config import conf
-from src.auth.token_status_manager import blacklist_token
+from src.auth.token_status_manager import *
 
 user_router = APIRouter(prefix="/usuarios", tags=["Usuário"])
 
@@ -84,10 +84,10 @@ async def edit_user_route(params: UpdateUserSchema, current_user: User = Depends
 
 
 @user_router.delete(path="/deletar_usuario", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_user_route(refresh_token: str, access_token: str = Depends(oauth2_scheme), current_user: User = Depends(get_current_user)):
+async def delete_user_route(refresh: RefreshTokenSchema, access_token: str = Depends(oauth2_scheme), current_user: User = Depends(get_current_user)):
     try:
         blacklist_token(token=access_token, token_type='access')
-        blacklist_token(token=refresh_token, token_type='refresh')
+        blacklist_token(token=refresh.refresh_token, token_type='refresh')
         delete_self(current_user)
         
     except UserNotFoundError as e:
@@ -96,9 +96,10 @@ async def delete_user_route(refresh_token: str, access_token: str = Depends(oaut
 
 
 @user_router.post(path="/login_usuario", status_code=status.HTTP_200_OK, response_model=ResponseTokensSchema)
-async def login_route(form_data: OAuth2PasswordRequestForm = Depends()):
+async def login_route(params: OAuth2PasswordRequestForm = Depends()):
     try:
-        user = login(form_data.username, form_data.password)
+        # Fala username por ser o parâmetro do OAuth2, mas na verdade é o identificador do usuário, nesse caso email
+        user = login(params.username, params.password)
         access_token = create_access_token(user)
         refresh_token = create_refresh_token(user)
         
@@ -116,16 +117,16 @@ async def login_route(form_data: OAuth2PasswordRequestForm = Depends()):
 
 
 @user_router.post(path='/logout_usuario', status_code=status.HTTP_204_NO_CONTENT)
-async def logout_route(refresh_token: str, access_token: str = Depends(oauth2_scheme), current_user: User = Depends(get_current_user)):
+async def logout_route(refresh: RefreshTokenSchema, access_token: str = Depends(oauth2_scheme), current_user: User = Depends(get_current_user)):
     blacklist_token(token=access_token, token_type='access')
-    blacklist_token(token=refresh_token, token_type='refresh')
+    blacklist_token(token=refresh.refresh_token, token_type='refresh')
 
 
 
 @user_router.post(path='/regerar_token', status_code=status.HTTP_200_OK, response_model=ResponseAccessTokenSchema)
-async def refresh_route(refresh_token: str):
+async def refresh_route(refresh: RefreshTokenSchema):
     try:
-        new_access_token = refresh_current_user(refresh_token)
+        new_access_token = refresh_current_user(refresh.refresh_token)
         return ResponseAccessTokenSchema(access_token=new_access_token, 
                                          token_type='bearer')
     
@@ -135,14 +136,14 @@ async def refresh_route(refresh_token: str):
 
 
 @user_router.post(path="/esqueci_a_senha", status_code=status.HTTP_204_NO_CONTENT)
-async def forgotten_password(user_email):
+async def forgotten_password_route(params: ForgottenPasswordSchema):
     try:
-        user = get_user_by_email(user_email)
+        user = get_user_by_email(params.email)
         token = create_recovery_token(user)
         
         message = MessageSchema(
             subject="Redefinição de senha",
-            recipients=[user_email],
+            recipients=[params.email],
             # Esse token estará no link, por isso ele pode ser passado como parâmetro direto no botão abaixo
             body=f"Aqui o token para redefinição de senha: {token}",
             subtype="plain"
@@ -157,13 +158,17 @@ async def forgotten_password(user_email):
     
 
 @user_router.post(path='/recuperar_senha', status_code=status.HTTP_200_OK, response_model=ResponseUserSchema)
-async def password_recovery(new_password: str, token: str):
+async def password_recovery_route(params: PasswordRecoverySchema):
     try:
         # Faz decode do token de recuperação
-        current_user = get_user_to_recover(token)
+        current_user = get_user_to_recover(params.recovery_token)
         
-        return edit_user(current_user=current_user,
-                         new_password=new_password)
+        edited_user = edit_user(current_user=current_user,
+                                new_password=params.new_password)
+        
+        invalidate_recovery_token(params.recovery_token)
+        
+        return edited_user
     
     except UserNotFoundError as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)

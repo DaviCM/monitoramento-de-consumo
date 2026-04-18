@@ -63,3 +63,11 @@ class BlacklistedTokenError(AppError):
     status_code = status.HTTP_401_UNAUTHORIZED
     status_name = 'BLACKLISTED_TOKEN'
     message = 'Seu usuário não pôde ser autenticado. Por favor, tente novamente.'
+    
+
+
+class TokenAlreadyUsedError(AppError):
+    status_code = status.HTTP_400_BAD_REQUEST
+    status_name = 'TOKEN_ALREADY_USED'
+    message = 'As credenciais deste usuário já foram recuperadas. A operação é inválida.'
+    

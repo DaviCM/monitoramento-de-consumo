@@ -42,6 +42,10 @@ def get_user_to_recover(token):
         
         if decoded_token.get('type') != 'recovery':
             raise InvalidTokenTypeError
+        
+        jti = decoded_token.get('jti')
+        if redis_client.exists(f'used:{jti}') == True:
+            raise TokenAlreadyUsedError
 
         user_id = int(decoded_token.get('sub'))
         current_user = get_user_by_id(user_id)
@@ -49,6 +53,9 @@ def get_user_to_recover(token):
         return current_user
 
     except InvalidTokenTypeError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+    
+    except TokenAlreadyUsedError as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)
     
     except ExpiredSignatureError:
