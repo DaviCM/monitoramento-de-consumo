@@ -20,7 +20,7 @@ services:
     volumes:
       - ./redis.conf:/redis/config/redis.conf # o arquivo local será mapeado para esse arquivo do container
       - /redis/data
-    command: ["redis_server", "/redis/config/redis.conf"]
+    command: ["redis-server", "/redis/config/redis.conf"]
 
 volumes:
   postgres_data:
