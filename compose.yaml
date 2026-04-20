@@ -38,3 +38,5 @@ volumes:
 
 
 # 999 é o user do Redis na imagem oficial.
+
+
