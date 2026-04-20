@@ -1,0 +1,33 @@
+services:
+  backend:
+    build: .
+    container_name: backend
+    env_file: ./.env
+    depends_on:
+      - postgres
+      - redis
+
+  postgres:
+    image: postgres:17.9
+    container_name: postgres
+    env_file: ./.env
+    volumes:
+      - /var/lib/postgresql/data
+
+  redis:
+    image: redis:8.6.2
+    container_name: redis
+    volumes:
+      - ./redis.conf:/redis/config/redis.conf # o arquivo local será mapeado para esse arquivo do container
+      - /redis/data
+    command: ["redis_server", "/redis/config/redis.conf"]
+
+volumes:
+  postgres_data:
+  redis_data:
+
+
+
+# Portas no Docker são no formato host:container, respectivamente
+# a porta que o sistema utiliza na máquina que o roda e a porta
+# em que ele deve aceitar fluxo.

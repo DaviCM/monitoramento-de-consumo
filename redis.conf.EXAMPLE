@@ -1,0 +1,19 @@
+maxmemory maximo-de-memoria-permitido
+maxmemory-policy politica-de-desocupação-de-memoria
+
+appendonly criação-de-arquivos-de-persistência
+
+bind ip-do-redis (docker)
+port porta-do-redis
+
+loglevel nível-de-detalhe-dos-logs
+logfile caminho-do-arquivo-de-logs
+
+dir caminho-do-arquivo-de-persistência
+
+protected-mode modo-protegido
+
+requirepass senha-do-redis
+
+# Lembrete: os valores de senha e porta devem ser os mesmos da .env!
+
