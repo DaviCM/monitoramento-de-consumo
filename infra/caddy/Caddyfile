@@ -1,14 +1,19 @@
+{
+	storage file_system ./data
+
+	# Tempo para requests finalizarem antes de um server fechar, no período em que conexões novas não são aceitas
+	grace_period 15s
+}
+
 # Trocar pelo domínio quando existir
 https://localhost {
-	storage file_system ./data
 	# Utiliza encoding nas respostas para velocidade. Esses são o padrão do HTTP
 	encode zstd gzip
 	log default {
-		output ./etc/caddy/log/caddy.log
+		output file ./etc/caddy/log/caddy.log
 		format console
 		level info
 	}
-	grace_period 10s
 	header {
 		# Substitui HTTP por HTTPS em todas as headers de localização
 		Location http:// https://
@@ -26,16 +31,16 @@ https://localhost {
 		X-Frame-Options DENY
 	}
 	handle_path /api* {
-		reverse_proxy :8000
+		reverse_proxy backend:8000
 	}
 	handle /openapi.json {
-		reverse_proxy :8000
+		reverse_proxy backend:8000
 	}
 	handle /docs {
-		reverse_proxy :8000
+		reverse_proxy backend:8000
 	}
 	handle /redoc {
-		reverse_proxy :8000
+		reverse_proxy backend:8000
 	}
 	handle {
 		redir * /docs 308
