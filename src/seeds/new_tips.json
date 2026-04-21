@@ -1,0 +1,19 @@
+[
+    {
+        "si_measurement_unit": "kWh",
+        "tip": "Tente desligar o chuveiro enquanto se ensaboa, será mais efetivo no combate às bactérias e salvará energia!"
+    },
+    {
+        "si_measurement_unit": "L",
+        "tip": "Quando for lavar o banheiro de casa, não jogue um balde cheio de água no chão! Ao invés disso, utilize quantidades menores e responsáveis; será mais fácil secar e gastará menos água!"
+    },
+    {
+        "si_measurement_unit": "kg",
+        "tip": "Ao cozinhar, evite o fogo alto! Além de desgastar suas panelas e equipamentos, a liberação extra de gás pode provocar vazamentos e aumenta o consumo."
+    },
+    {
+        "si_measurement_unit": "kWh",
+        "tip": "Quando sair de casa, desligue seu computador! Se estiver com dados sensíveis abertos, ao menos desligue o monitor ou coloque a máquina em suspensão."
+    }
+    
+]
