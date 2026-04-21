@@ -1,6 +1,6 @@
 FROM python:3.13.13-slim
 
-WORKDIR /monitoramento-de-consumo
+WORKDIR /backend
 
 # Devemos copiar o requirements antes, de acordo com a documentação
 # A razão é possibilitar que o Docker utilize os requirements do cache se o arquivo não mudar, porque caso contrário um erro no sistema
@@ -12,4 +12,4 @@ COPY . .
 
 EXPOSE 8000
 
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]

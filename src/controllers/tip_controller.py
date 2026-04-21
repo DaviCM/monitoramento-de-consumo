@@ -9,7 +9,7 @@ from src.database.session import get_session
 from src.errors.tip_errors import TipsNotFoundError
 
 def create_tips():
-    with open('src/editors/new_tips.json', 'r', encoding='utf-8') as file:
+    with open('src/seeds/new_tips.json', 'r', encoding='utf-8') as file:
         new_tips: list = json.load(file)
 
         # for tip in new_tips:

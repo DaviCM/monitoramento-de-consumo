@@ -13,7 +13,7 @@ from src.auth.refresh_token_auth import *
 from src.auth.email_config import conf
 from src.auth.token_status_manager import *
 
-user_router = APIRouter(prefix="/usuarios", tags=["Usuário"])
+user_router = APIRouter(prefix="/api/usuarios", tags=["Usuário"])
 
 @user_router.post(path="/criar_usuario", status_code=status.HTTP_201_CREATED, response_model=ResponseUserSchema)
 async def create_user_route(new_user: UserSchema):

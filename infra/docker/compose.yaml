@@ -1,34 +1,57 @@
 services:
   backend:
-    build: .
+    build:
+      context: ../..
+      dockerfile: /infra/docker/Dockerfile
     container_name: backend
-    env_file: ./.env
+    env_file: ../../.env
     depends_on:
       - postgres
       - redis
+    expose:
+      - "8000"
 
   postgres:
     image: postgres:17.9
     container_name: postgres
-    env_file: ./.env
+    env_file: ../../.env
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    expose:
+      - "5432"
 
   redis:
     image: redis:8.6.2
     container_name: redis
     volumes:
-      - ./redis.conf:/redis/config/redis.conf # o arquivo local será mapeado para esse arquivo do container
+      - ../../infra/redis/redis.conf:/redis/config/redis.conf # o arquivo local será mapeado para esse arquivo do container
       - redis_data:/redis/data/
       - redis_log:/redis/log/
     command: >
       bash -c "chown -R 999:999 /redis/data/ /redis/log/ &&
       redis-server /redis/config/redis.conf"
+    expose:
+      - "6379"
+
+  caddy:
+    image: caddy:2.11.2
+    container_name: caddy
+    cap_add:
+      - NET_ADMIN # Adiciona a capacidade de manipular as redes do container, recomendado na documentação
+    depends_on:
+      - backend
+    volumes:
+      - ../../infra/caddy/:/etc/caddy
+      - caddy_data:/data
+      - caddy_config:/config
+
 
 volumes:
   postgres_data:
   redis_data:
   redis_log:
+  caddy_data:
+  caddy_config:
 
 
 
