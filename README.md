@@ -30,6 +30,8 @@ Essa aplicação é standalone como API, e não é dependente do frontend Liqua 
 
 ![JWT](https://img.shields.io/badge/JSON_Web_Token-RFC_7519-F7DF1E?style=plastic&logo=javascript)
 
+![Caddy](https://img.shields.io/badge/Caddy-2.11.2-1F88C0?style=plastic&logo=caddy)
+
 ## Arquitetura do Sistema (em ambiente de desenvolvimento padrão)
 ```
 └── monitoramento-de-consumo/
