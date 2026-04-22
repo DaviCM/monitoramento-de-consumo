@@ -26,7 +26,7 @@ https://liquamonitor.dev {
 		Permissions-Policy interest-cohort=()
 
 		# Força o navegador a usar apenas HTTPS, de acordo com o padrão HSTS. max-age é o tempo pelo qual apenas HTTPS deve ser acessado pelo browser, nesse caso 1 ano (padrão).
-		Strict-Transport-Security max-age=31536000 # SÓ ATIVAR EM PRODUÇÃO
+		Strict-Transport-Security "max-age=31536000; preload; includeSubdomains" # SÓ ATIVAR EM PRODUÇÃO
 
 		# Impede que o browser interprete erroneamente o tipo de dado especificado no recurso (sniffing). Impede a execução de scripts que não possuem o tipo (script).
 		X-Content-Type-Options nosniff
