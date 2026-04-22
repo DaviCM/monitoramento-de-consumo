@@ -5,12 +5,12 @@
 	grace_period 15s
 }
 
-https://www.liquamonitor.dev {
-	redir https://liquamonitor.dev
+www.liquamonitor.dev {
+	redir liquamonitor.dev
 }
 
 # Trocar pelo domínio quando existir
-https://liquamonitor.dev {
+liquamonitor.dev {
 	# Utiliza encoding nas respostas para velocidade. Esses são o padrão do HTTP
 	encode zstd gzip
 	log default {
@@ -40,10 +40,10 @@ https://liquamonitor.dev {
 	handle /openapi.json {
 		reverse_proxy backend:8000
 	}
-	handle /docs* {
+	handle /docs {
 		reverse_proxy backend:8000
 	}
-	handle /redoc* {
+	handle /redoc {
 		reverse_proxy backend:8000
 	}
 	handle {
