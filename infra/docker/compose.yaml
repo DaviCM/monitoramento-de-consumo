@@ -2,7 +2,7 @@ services:
   backend:
     build:
       context: ../..
-      dockerfile: /infra/docker/Dockerfile
+      dockerfile: ./infra/docker/Dockerfile
     container_name: backend
     env_file: ../../.env
     depends_on:
