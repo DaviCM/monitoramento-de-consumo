@@ -21,7 +21,7 @@ async def create_user_route(new_user: UserSchema):
         return create_user(new_user.real_name, 
                            new_user.username, 
                            new_user.email, 
-                           new_user.password)
+                           new_user.password.get_secret_value())
         
     except InvalidEmailError as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)
@@ -61,7 +61,7 @@ async def edit_user_route(params: UpdateUserSchema, current_user: User = Depends
                          new_real_name=params.new_real_name,
                          new_username=params.new_username,
                          new_email=params.new_email,
-                         new_password=params.new_password)
+                         new_password=params.new_password.get_secret_value())
             
     except UserNotFoundError as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)
@@ -164,7 +164,7 @@ async def password_recovery_route(params: PasswordRecoverySchema):
         current_user = get_user_to_recover(params.recovery_token)
         
         edited_user = edit_user(current_user=current_user,
-                                new_password=params.new_password)
+                                new_password=params.new_password.get_secret_value())
         
         invalidate_recovery_token(params.recovery_token)
         

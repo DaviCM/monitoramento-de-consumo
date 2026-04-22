@@ -1,5 +1,4 @@
-import re
-from re import Match
+from re import match, Match
 
 from sqlalchemy import select
 
@@ -17,7 +16,7 @@ def username_already_exists(verifying_username):
 
 def verify_username(username):
     pattern = r"[a-zA-Z0-9][a-zA-Z0-9._]{3,15}$"
-    result = re.match(pattern, username)
+    result = match(pattern, username)
 
     return True if type(result) == Match else False
 
