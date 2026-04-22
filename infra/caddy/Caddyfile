@@ -5,8 +5,12 @@
 	grace_period 15s
 }
 
+https://www.liquamonitor.dev {
+	redir https://liquamonitor.dev
+}
+
 # Trocar pelo domínio quando existir
-https://localhost {
+https://liquamonitor.dev {
 	# Utiliza encoding nas respostas para velocidade. Esses são o padrão do HTTP
 	encode zstd gzip
 	log default {
@@ -22,7 +26,7 @@ https://localhost {
 		Permissions-Policy interest-cohort=()
 
 		# Força o navegador a usar apenas HTTPS, de acordo com o padrão HSTS. max-age é o tempo pelo qual apenas HTTPS deve ser acessado pelo browser, nesse caso 1 ano (padrão).
-		# Strict-Transport-Security max-age=31536000 SÓ ATIVAR EM PRODUÇÃO
+		Strict-Transport-Security max-age=31536000 # SÓ ATIVAR EM PRODUÇÃO
 
 		# Impede que o browser interprete erroneamente o tipo de dado especificado no recurso (sniffing). Impede a execução de scripts que não possuem o tipo (script).
 		X-Content-Type-Options nosniff
@@ -30,16 +34,16 @@ https://localhost {
 		# Garante que o site não pode ser inserido como <frame> em outro html, para proteger contra ataques de site falso (clickjacking)
 		X-Frame-Options DENY
 	}
-	handle_path /api* {
+	handle /api* {
 		reverse_proxy backend:8000
 	}
 	handle /openapi.json {
 		reverse_proxy backend:8000
 	}
-	handle /docs {
+	handle /docs* {
 		reverse_proxy backend:8000
 	}
-	handle /redoc {
+	handle /redoc* {
 		reverse_proxy backend:8000
 	}
 	handle {
