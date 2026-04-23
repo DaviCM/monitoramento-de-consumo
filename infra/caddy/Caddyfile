@@ -19,9 +19,6 @@ liquamonitor.dev {
 		level info
 	}
 	header {
-		# Substitui HTTP por HTTPS em todas as headers de localização
-		Location http:// https://
-
 		#Limita o acesso às APIs do browser, como câmera e microfone. Evita que scripts executem código nessas áreas.
 		Permissions-Policy interest-cohort=()
 
