@@ -96,10 +96,10 @@ async def delete_user_route(refresh: RefreshTokenSchema, access_token: str = Dep
 
 
 @user_router.post(path="/login_usuario", status_code=status.HTTP_200_OK, response_model=ResponseTokensSchema)
-async def login_route(params: OAuth2PasswordRequestForm = Depends()):
+async def login_route(params: LoginUserSchema):
     try:
         # Fala username por ser o parâmetro do OAuth2, mas na verdade é o identificador do usuário, nesse caso email
-        user = login(params.username, params.password)
+        user = login(params.email, params.password.get_secret_value())
         access_token = create_access_token(user)
         refresh_token = create_refresh_token(user)
         
