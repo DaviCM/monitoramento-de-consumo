@@ -13,11 +13,6 @@ www.liquamonitor.dev {
 	header {
 		X-Robots-Tag "noindex, nofollow"
 	}
-	handle /robots.txt {
-		root * /etc/caddy/
-		rewrite * /robots.txt
-		file_server
-	}
 	handle {
 		redir https://liquamonitor.dev{uri} 308
 	}
