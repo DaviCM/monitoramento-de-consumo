@@ -12,14 +12,14 @@ class InvalidUsernameError(AppError):
 class InvalidEmailError(AppError):
     status_code = status.HTTP_400_BAD_REQUEST
     status_name = 'INVALID_EMAIL'
-    message = 'O Email que você cadastrar inserir é inválido ou inexistente. Por favor, tente novamente.'
+    message = 'As credenciais que você tentou cadastrar não cumprem com os parâmetros. Por favor, tente novamente.'
 
 
-
+''
 class InvalidPasswordError(AppError):
     status_code = status.HTTP_400_BAD_REQUEST
     status_name = 'INVALID_PASSWORD'
-    message = 'A senha que você tentou cadastrar não cumpre com os parâmetros. Por favor, tente novamente.'
+    message = 'As credenciais que você tentou cadastrar não cumprem com os parâmetros. Por favor, tente novamente.'
     
     
     
