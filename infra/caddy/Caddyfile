@@ -5,7 +5,14 @@
 	grace_period 15s
 }
 
+app.liquamonitor.dev {
+	respond "Ooops! A aplicação web do Liqua Monitor não está pronta ainda. Até breve!"
+}
+
 www.liquamonitor.dev {
+	header {
+		X-Robots-Tag "noindex, nofollow"
+	}
 	redir https://liquamonitor.dev{uri} 308
 }
 
@@ -19,6 +26,8 @@ liquamonitor.dev {
 		level info
 	}
 	header {
+		X-Robots-Tag "noindex, nofollow"
+
 		#Limita o acesso às APIs do browser, como câmera e microfone. Evita que scripts executem código nessas áreas.
 		Permissions-Policy interest-cohort=()
 
@@ -42,6 +51,11 @@ liquamonitor.dev {
 	}
 	handle /redoc {
 		reverse_proxy backend:8000
+	}
+	handle /robots.txt {
+		root * /etc/caddy/
+		rewrite * /robots.txt
+		file_server
 	}
 	handle {
 		redir * /docs 308

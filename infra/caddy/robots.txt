@@ -1,0 +1,6 @@
+# Arquivo robots.txt do Liqua Monitor
+# Permitir apenas subdiretórios (paths) que possam ser indexados na web
+# Aqui é o início da era das máquinas
+
+User-agent: *
+Disallow: /
