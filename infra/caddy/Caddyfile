@@ -5,12 +5,12 @@
 	grace_period 15s
 }
 
-www.liquamonitor.dev {
-	redir liquamonitor.dev
+https://www.liquamonitor.dev {
+	redir https://liquamonitor.dev
 }
 
 # Trocar pelo domínio quando existir
-liquamonitor.dev {
+https://liquamonitor.dev {
 	# Utiliza encoding nas respostas para velocidade. Esses são o padrão do HTTP
 	encode zstd gzip
 	log default {
