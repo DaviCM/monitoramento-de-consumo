@@ -13,9 +13,10 @@ www.liquamonitor.dev {
 	header {
 		X-Robots-Tag "noindex, nofollow"
 	}
-	redir https://liquamonitor.dev{uri} 308
+	handle {
+		redir https://liquamonitor.dev{uri} 308
+	}
 }
-
 # Trocar pelo domínio quando existir
 liquamonitor.dev {
 	# Utiliza encoding nas respostas para velocidade. Esses são o padrão do HTTP
