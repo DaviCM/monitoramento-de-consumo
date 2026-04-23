@@ -6,7 +6,7 @@
 }
 
 https://www.liquamonitor.dev {
-	redir https://liquamonitor.dev
+	redir https://liquamonitor.dev{uri} 308
 }
 
 # Trocar pelo domínio quando existir
