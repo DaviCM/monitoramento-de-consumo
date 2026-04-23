@@ -27,7 +27,7 @@ services:
       - ../../infra/redis/redis.conf:/redis/config/redis.conf # o arquivo local será mapeado para esse arquivo do container
       - redis_data:/redis/data/
     command: >
-      bash -c "chown -R 999:999 /redis/data/ /redis/log/ &&
+      bash -c "chown -R 999:999 /redis/data/ &&
       redis-server /redis/config/redis.conf"
     expose:
       - "6379"
