@@ -41,7 +41,6 @@ services:
       - backend
     volumes:
       - ../../infra/caddy/:/etc/caddy
-      - ../../infra/caddy/robots.txt:/etc/caddy/robots.txt
       - caddy_data:/data
       - caddy_config:/config
     ports:
