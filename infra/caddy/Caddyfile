@@ -13,7 +13,12 @@ www.liquamonitor.dev {
 	header {
 		X-Robots-Tag "noindex, nofollow"
 	}
-	redir https://liquamonitor.dev{uri} 308
+	handle /robots.txt {
+		redir https://liquamonitor.dev/robots.txt 308
+	}
+	handle {
+		https://liquamonitor.dev{uri} 308
+	}
 }
 
 # Trocar pelo domínio quando existir
