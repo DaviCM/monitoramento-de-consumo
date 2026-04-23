@@ -21,7 +21,7 @@ liquamonitor.dev {
 	# Utiliza encoding nas respostas para velocidade. Esses são o padrão do HTTP
 	encode zstd gzip
 	log default {
-		output file ./etc/caddy/log/caddy.log
+		output stdout
 		format console
 		level info
 	}

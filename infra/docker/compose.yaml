@@ -26,7 +26,6 @@ services:
     volumes:
       - ../../infra/redis/redis.conf:/redis/config/redis.conf # o arquivo local será mapeado para esse arquivo do container
       - redis_data:/redis/data/
-      - redis_log:/redis/log/
     command: >
       bash -c "chown -R 999:999 /redis/data/ /redis/log/ &&
       redis-server /redis/config/redis.conf"
@@ -53,7 +52,6 @@ services:
 volumes:
   postgres_data:
   redis_data:
-  redis_log:
   caddy_data:
   caddy_config:
 
