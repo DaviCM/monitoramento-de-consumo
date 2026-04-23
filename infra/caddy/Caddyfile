@@ -17,7 +17,7 @@ www.liquamonitor.dev {
 		redir https://liquamonitor.dev/robots.txt 308
 	}
 	handle {
-		https://liquamonitor.dev{uri} 308
+		redir https://liquamonitor.dev{uri} 308
 	}
 }
 
