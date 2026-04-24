@@ -1,6 +1,4 @@
 {
-	storage file_system ./data
-
 	# Tempo para requests finalizarem antes de um server fechar, no período em que conexões novas não são aceitas
 	grace_period 15s
 }
