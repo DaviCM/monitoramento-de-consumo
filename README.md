@@ -1,10 +1,10 @@
-# API de Monitoramento de Consumo do Liqua
+# API de Monitoramento de Consumo Liqua Monitor
 
 Uma API desenvolvida com o objeto de fornecer um backend para o aplicativo móvel Liqua, um monitorador de consumos domésticos centrado na construção de um histórico de consumo visualizável para economia de água, luz e gás. 
 
 Esse aplicativo foi construido para fins educacionais por alunos do 3º ano do Novo Ensino Médio, ao longo das aulas do curso Técnico em Desenvolvimento de Sistemas, realizado no SESI/SENAI-DF.
 
-Essa aplicação é standalone como API, e não é dependente do frontend Liqua para sua execução.
+Essa aplicação é standalone como API, e não é dependente do frontend Liqua para sua execução. Excluindo casos de ambiente de desenvolvimento em que o link principla é desativado, você pode nos encontrar [clicando aqui.](https://liquamonitor.dev)
 
 ## Features
 - Cadastro e autenticação de usuários;
@@ -34,18 +34,25 @@ Essa aplicação é standalone como API, e não é dependente do frontend Liqua 
 
 ## Arquitetura do Sistema (em ambiente de desenvolvimento padrão)
 ```
+.
 └── monitoramento-de-consumo/
     ├── .venv/
     ├── alembic/
+    ├── docs/
+    ├── infra/
+    │   ├── caddy/
+    │   ├── docker/
+    │   └── redis/
     ├── src/
     │   ├── api/
     │   ├── auth/
     │   ├── controllers/
     │   ├── database/
-    │   ├── editors/
     │   ├── errors/
     │   ├── models/
+    │   ├── redis/
     │   ├── schemas/
+    │   ├── seeds/
     │   ├── validators/
     │   ├── __init__.py
     │   └── main.py
@@ -53,13 +60,14 @@ Essa aplicação é standalone como API, e não é dependente do frontend Liqua 
     ├── .env.EXAMPLE
     ├── .gitignore
     ├── alembic.ini
+    ├── README.md
     └── requirements.txt
 ```
 
 ## Documentação completa
-A documentação completa desse sistema estará disponível na pasta [/docs](/docs) ao final do desenvolvimento.
+A documentação completa desse sistema está disponível na pasta /docs, envolvendo diagramas de classe, caso de uso, banco de dados e a documentação completa do comportamento da API.
 
-## Equipe Responsável pelo Projeto Liqua
+## Equipe Responsável pelo Projeto Liqua Monitor
 ### Desenvolvedores Backend
 [Pedro Domiense](https://github.com/Pedro-D753)
 
