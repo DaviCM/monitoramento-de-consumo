@@ -1,6 +1,11 @@
 {
+	storage file_system ./data
+
 	# Tempo para requests finalizarem antes de um server fechar, no período em que conexões novas não são aceitas
 	grace_period 15s
+
+	# TEMPORÁRIO ambiente de desenvolvimento
+	acme_ca https://acme-staging-v02.api.letsencrypt.org/directory
 }
 
 app.liquamonitor.dev {
@@ -22,7 +27,7 @@ liquamonitor.dev {
 	log default {
 		output stdout
 		format console
-		level debug
+		level info
 	}
 	header {
 		X-Robots-Tag "noindex, nofollow"
