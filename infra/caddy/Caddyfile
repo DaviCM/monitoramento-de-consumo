@@ -3,25 +3,22 @@
 
 	# Tempo para requests finalizarem antes de um server fechar, no período em que conexões novas não são aceitas
 	grace_period 15s
-
-	# TEMPORÁRIO ambiente de desenvolvimento
-	acme_ca https://acme-staging-v02.api.letsencrypt.org/directory
 }
 
-app.liquamonitor.dev {
+front.liquamonitor.dev {
 	respond "Ooops! A aplicação web do Liqua Monitor não está pronta ainda. Até breve!"
 }
 
-www.liquamonitor.dev {
+oi.liquamonitor.dev {
 	header {
 		X-Robots-Tag "noindex, nofollow"
 	}
 	handle {
-		redir https://liquamonitor.dev{uri} 308
+		redir https://backup.liquamonitor.dev{uri} 308
 	}
 }
 
-liquamonitor.dev {
+backup.liquamonitor.dev {
 	# Utiliza encoding nas respostas para velocidade. Esses são o padrão do HTTP
 	encode zstd gzip
 	log default {
