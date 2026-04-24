@@ -15,7 +15,7 @@ class InvalidEmailError(AppError):
     message = 'As credenciais que você tentou cadastrar não cumprem com os parâmetros. Por favor, tente novamente.'
 
 
-''
+
 class InvalidPasswordError(AppError):
     status_code = status.HTTP_400_BAD_REQUEST
     status_name = 'INVALID_PASSWORD'

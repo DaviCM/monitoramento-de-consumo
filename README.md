@@ -1,13 +1,19 @@
-# API de Monitoramento de Consumo Liqua Monitor
+# <div align="center">API de Monitoramento de Consumo Liqua Monitor</div>
+
+<div style="text-align:center; width:auto; height:auto">
+    <img style="align:center; width:25%; height:auto" src="https://i.imgur.com/iB3ZRvo.png" >
+</div>
 
 Uma API desenvolvida com o objeto de fornecer um backend para o aplicativo móvel Liqua, um monitorador de consumos domésticos centrado na construção de um histórico de consumo visualizável para economia de água, luz e gás. 
 
 Esse aplicativo foi construido para fins educacionais por alunos do 3º ano do Novo Ensino Médio, ao longo das aulas do curso Técnico em Desenvolvimento de Sistemas, realizado no SESI/SENAI-DF.
 
-Essa aplicação é standalone como API, e não é dependente do frontend Liqua para sua execução. Excluindo casos de ambiente de desenvolvimento em que o link principla é desativado, você pode nos encontrar [clicando aqui.](https://liquamonitor.dev)
+Como esse backend é exposto na forma de uma API standalone, ele não é dependente do frontend Liqua para sua execução. Excluindo casos de ambiente de desenvolvimento em que o link principal é desativado, você pode nos encontrar em https://liquamonitor.dev, ou [clicando aqui.](https://liquamonitor.dev)
+
+Para visualizar o repositório da aplicação mobile Liqua Monitor para qualquer fim, [acesse esse link.](https://github.com/Pedro-D753/monitoramento-consumo-frontend) A interface, apesar de desacoplada, foi desenvolvida ao redor do padrão de resposta da API de Monitoramento de Consumo Liqua Monitor, e não funcionará caso o endereço da API estiver fora do ar, bem como se houver alteração nos endereços de query da interface.
 
 ## Features
-- Cadastro e autenticação de usuários;
+- Cadastro, autenticação e edição de usuários;
 - Manipulação completa de histórico de consumos reais, simulações e metas autoimpostas;
 - Distribuição de Dicas Sutentáveis instanciadas diretamente via JSON;
 - Validação de dados e tipagem com Pydantic para integridade do sistema;
