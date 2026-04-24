@@ -24,7 +24,7 @@ services:
     image: redis:8.6.2
     container_name: redis
     volumes:
-      - ../../infra/redis/redis.conf:/redis/config/redis.conf # o arquivo local será mapeado para esse arquivo do container
+      - ../../infra/redis/redis.conf:/redis/config/redis.conf
       - redis_data:/redis/data/
     command: >
       bash -c "chown -R 999:999 /redis/data/ &&
@@ -36,7 +36,7 @@ services:
     image: caddy:2.11.2
     container_name: caddy
     cap_add:
-      - NET_ADMIN # Adiciona a capacidade de manipular as redes do container, recomendado na documentação
+      - NET_ADMIN
     depends_on:
       - backend
     volumes:
@@ -53,14 +53,3 @@ volumes:
   redis_data:
   caddy_data:
   caddy_config:
-
-
-
-# Portas no Docker são no formato host:container, respectivamente
-# a porta que o sistema utiliza na máquina que o roda e a porta
-# em que ele deve aceitar fluxo.
-
-
-# 999 é o user do Redis na imagem oficial.
-
-

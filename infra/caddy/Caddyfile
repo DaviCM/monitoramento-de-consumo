@@ -15,7 +15,7 @@ www.liquamonitor.dev {
 		redir https://liquamonitor.dev{uri} 308
 	}
 }
-# Trocar pelo domínio quando existir
+
 liquamonitor.dev {
 	# Utiliza encoding nas respostas para velocidade. Esses são o padrão do HTTP
 	encode zstd gzip
