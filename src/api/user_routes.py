@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
-from fastapi_mail import FastMail, MessageSchema
 
 from src.models.user_model import User
 from src.schemas.user_schemas import *
@@ -10,8 +9,8 @@ from src.errors.user_errors import *
 from src.auth.access_token_auth import *
 from src.auth.recovery_token_auth import *
 from src.auth.refresh_token_auth import *
-from src.auth.email_config import conf
 from src.auth.token_status_manager import *
+from src.clients.email_client import send_recovery_email
 
 user_router = APIRouter(prefix="/api/usuarios", tags=["Usuário"])
 
@@ -141,16 +140,7 @@ async def forgotten_password_route(params: ForgottenPasswordSchema):
         user = get_user_by_email(params.email)
         token = create_recovery_token(user)
         
-        message = MessageSchema(
-            subject="Redefinição de senha",
-            recipients=[params.email],
-            # Esse token estará no link, por isso ele pode ser passado como parâmetro direto no botão abaixo
-            body=f"Aqui o token para redefinição de senha: {token}",
-            subtype="plain"
-        )
-        
-        fm = FastMail(conf)
-        await fm.send_message(message)
+        send_recovery_email(target_user=User, recovery_token=token)
         
     except UserNotFoundError as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)

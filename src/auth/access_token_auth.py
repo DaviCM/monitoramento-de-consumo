@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 
 from src.models.user_model import User
 from src.controllers.user_controller import get_user_by_id
-from src.redis.redis_client import redis_client
+from src.clients.redis_client import redis_client
 from src.errors.user_errors import *
 
 load_dotenv()

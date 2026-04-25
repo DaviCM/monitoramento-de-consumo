@@ -5,7 +5,7 @@ from typing import Literal # Literal: apenas valores nesse grupo restrito de val
 import jwt
 from jwt import ExpiredSignatureError, InvalidTokenError
 from fastapi import HTTPException, status
-from src.redis.redis_client import redis_client
+from src.clients.redis_client import redis_client
 
 def blacklist_token(token: str, token_type: Literal['access', 'refresh']):
     if token_type == 'access':
