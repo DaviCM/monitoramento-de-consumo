@@ -17,8 +17,10 @@ resend.api_key = os.getenv('RESEND_API_KEY')
 
 def send_recovery_email(target_user: User, recovery_token: str):
     try:
-        recovery_html = render_template('password_recovery_page.html', {'user_real_name': target_user.real_name,
-                                                                   'recovery_url': f'{os.getenv('WEB_APP_URL')}/reset-password?recovery_token={recovery_token}'})
+        recovery_html = render_template(template_name='password_recovery_page.html', 
+                                        params={'user_real_name': target_user.real_name,
+                                                'recovery_url': f'{os.getenv('WEB_APP_URL')}/reset-password?recovery_token={recovery_token}'
+                                                })
 
         email_params: resend.Emails.SendParams = {
             'from': f'{os.getenv('SENDER_NAME')} <{os.getenv('SENDER_ADDRESS')}>',
