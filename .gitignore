@@ -1,6 +1,9 @@
 # Arquivos de teste
 src/**/test.py
 
+# Configs do redis
+redis.conf
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]

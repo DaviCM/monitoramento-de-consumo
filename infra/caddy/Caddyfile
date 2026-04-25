@@ -1,0 +1,64 @@
+{
+	storage file_system ./data
+
+	# Tempo para requests finalizarem antes de um server fechar, no período em que conexões novas não são aceitas
+	grace_period 15s
+}
+
+front.liquamonitor.dev {
+	respond "Ooops! A aplicação web do Liqua Monitor não está pronta ainda. Até breve!"
+}
+
+oi.liquamonitor.dev {
+	header {
+		X-Robots-Tag "noindex, nofollow"
+	}
+	handle {
+		redir https://backup.liquamonitor.dev{uri} 308
+	}
+}
+
+backup.liquamonitor.dev {
+	# Utiliza encoding nas respostas para velocidade. Esses são o padrão do HTTP
+	encode zstd gzip
+	log default {
+		output stdout
+		format console
+		level info
+	}
+	header {
+		X-Robots-Tag "noindex, nofollow"
+
+		#Limita o acesso às APIs do browser, como câmera e microfone. Evita que scripts executem código nessas áreas.
+		Permissions-Policy interest-cohort=()
+
+		# Força o navegador a usar apenas HTTPS, de acordo com o padrão HSTS. max-age é o tempo pelo qual apenas HTTPS deve ser acessado pelo browser, nesse caso 1 ano (padrão).
+		Strict-Transport-Security "max-age=31536000; includeSubDomains" # SÓ ATIVAR EM PRODUÇÃO
+
+		# Impede que o browser interprete erroneamente o tipo de dado especificado no recurso (sniffing). Impede a execução de scripts que não possuem o tipo (script).
+		X-Content-Type-Options nosniff
+
+		# Garante que o site não pode ser inserido como <frame> em outro html, para proteger contra ataques de site falso (clickjacking)
+		X-Frame-Options DENY
+	}
+	handle /api* {
+		reverse_proxy backend:8000
+	}
+	handle /openapi.json {
+		reverse_proxy backend:8000
+	}
+	handle /docs {
+		reverse_proxy backend:8000
+	}
+	handle /redoc {
+		reverse_proxy backend:8000
+	}
+	handle /robots.txt {
+		root * /etc/caddy/
+		rewrite * /robots.txt
+		file_server
+	}
+	handle {
+		redir * /docs 308
+	}
+}

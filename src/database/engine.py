@@ -1,12 +1,14 @@
 import os
+
+from sqlalchemy import create_engine
+from dotenv import load_dotenv
+
 from src.database.base import Base
 from src.models.consumption_history_model import ConsumptionHistory
 from src.models.consumption_simulation_model import ConsumptionSimulation
 from src.models.goal_model import Goal
 from src.models.tip_model import Tip
 from src.models.user_model import User
-from sqlalchemy import create_engine
-from dotenv import load_dotenv
 
 load_dotenv()
 

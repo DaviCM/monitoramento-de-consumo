@@ -1,10 +1,11 @@
 from fastapi import APIRouter, HTTPException, status
+
 from src.models.tip_model import Tip
 from src.controllers.tip_controller import get_tip
 from src.schemas.tip_schemas import ResponseTipSchema
 from src.errors.tip_errors import TipsNotFoundError
 
-tip_router = APIRouter(prefix='/dicas', tags=['Dicas Sustentáveis'])
+tip_router = APIRouter(prefix='/api/dicas', tags=['Dicas Sustentáveis'])
 
 @tip_router.get(path='/pegar_dica_aleatoria/{unit}', status_code=status.HTTP_200_OK, response_model=ResponseTipSchema)
 async def get_random_tip(unit: str):

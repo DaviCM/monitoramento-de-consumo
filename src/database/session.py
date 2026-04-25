@@ -1,10 +1,12 @@
 # Tentativa de criar uma espécie de 'pool' de sessões com base em contexto, distrubíndo elas para cada regra de negócio
-from src.database.engine import engine
-from src.errors.app_errors import AppError, ServerSideError
+from contextlib import contextmanager
+
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from fastapi.exceptions import FastAPIError
-from contextlib import contextmanager
+
+from src.database.engine import engine
+from src.errors.app_errors import AppError, ServerSideError
 
 Session = sessionmaker(bind=engine,
                        expire_on_commit=False)

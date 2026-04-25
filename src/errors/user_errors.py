@@ -1,5 +1,6 @@
-from src.errors.app_errors import AppError
 from fastapi import status
+
+from src.errors.app_errors import AppError
 
 class InvalidUsernameError(AppError):
     status_code = status.HTTP_400_BAD_REQUEST
@@ -11,14 +12,14 @@ class InvalidUsernameError(AppError):
 class InvalidEmailError(AppError):
     status_code = status.HTTP_400_BAD_REQUEST
     status_name = 'INVALID_EMAIL'
-    message = 'O Email que você cadastrar inserir é inválido ou inexistente. Por favor, tente novamente.'
+    message = 'As credenciais que você tentou cadastrar não cumprem com os parâmetros. Por favor, tente novamente.'
 
 
 
 class InvalidPasswordError(AppError):
     status_code = status.HTTP_400_BAD_REQUEST
     status_name = 'INVALID_PASSWORD'
-    message = 'A senha que você tentou cadastrar não cumpre com os parâmetros. Por favor, tente novamente.'
+    message = 'As credenciais que você tentou cadastrar não cumprem com os parâmetros. Por favor, tente novamente.'
     
     
     
@@ -50,8 +51,23 @@ class EmailAlreadyExistsError(AppError):
 
 
 
-class WrongTokenTypeError(AppError):
+class InvalidTokenTypeError(AppError):
     status_code = status.HTTP_401_UNAUTHORIZED
-    status_name = 'WRONG_TOKEN_TYPE'
+    status_name = 'INVALID_TOKEN_TYPE'
     message = 'Seu usuário não pôde ser autenticado. Por favor, tente novamente.'
     # * ser o mais genérico possível, não posso dizer que é a origem do jwt está errada.
+    
+    
+
+class BlacklistedTokenError(AppError):
+    status_code = status.HTTP_401_UNAUTHORIZED
+    status_name = 'BLACKLISTED_TOKEN'
+    message = 'Seu usuário não pôde ser autenticado. Por favor, tente novamente.'
+    
+
+
+class TokenAlreadyUsedError(AppError):
+    status_code = status.HTTP_400_BAD_REQUEST
+    status_name = 'TOKEN_ALREADY_USED'
+    message = 'As credenciais deste usuário já foram recuperadas. A operação é inválida.'
+    

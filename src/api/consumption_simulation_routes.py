@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+
 from src.models.user_model import User
 from src.controllers.consumption_simulations_controller import *
 from src.schemas.consumption_simulation_schemas import *
@@ -6,7 +7,7 @@ from src.errors.consumption_errors import *
 from src.errors.user_errors import UserNotFoundError
 from src.auth.access_token_auth import get_current_user
 
-consumption_simulation_router = APIRouter(prefix= "/simulacoes", tags=["Simulações de Consumo"])
+consumption_simulation_router = APIRouter(prefix= "/api/simulacoes", tags=["Simulações de Consumo"])
 
 @consumption_simulation_router.post(path="/criar_simulacao", status_code=status.HTTP_201_CREATED, response_model=ResponseSimulationSchema)
 async def create_simulation_route(to_create: SimulationSchema, current_user: User = Depends(get_current_user)):

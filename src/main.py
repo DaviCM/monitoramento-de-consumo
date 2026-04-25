@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+
 from src.api.user_routes import user_router
 from src.api.consumption_real_routes import consumption_real_router
 from src.api.consumption_simulation_routes import consumption_simulation_router

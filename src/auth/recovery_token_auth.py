@@ -1,24 +1,29 @@
-from fastapi import HTTPException, status
+import os
 from datetime import datetime, timezone, timedelta
+from uuid import uuid4
+
+import jwt
+from jwt import ExpiredSignatureError, InvalidTokenError
+from fastapi import HTTPException, status
 from dotenv import load_dotenv
-from datetime import timedelta
+
 from src.models.user_model import User
 from src.controllers.user_controller import get_user_by_id
+from src.clients.redis_client import redis_client
 from src.errors.user_errors import *
-from jwt import ExpiredSignatureError, InvalidTokenError
-import jwt
-import os
 
 load_dotenv()
 
 def create_recovery_token(user_to_recover: User):
     expire = datetime.now(tz=timezone.utc) + timedelta(minutes=(int(os.getenv('RECOVERY_TOKEN_EXPIRE_MINUTES'))))
+    jti = str(uuid4())
     
     header = {"alg": os.getenv('ALGORITHM'),
               "typ": "JWT",}
     
     payload = {'exp': expire,
-               'sub': user_to_recover.id,
+               'sub': str(user_to_recover.id),
+               'jti': jti,
                'type': 'recovery'}
     
     encoded_jwt = jwt.encode(headers=header,
@@ -31,19 +36,26 @@ def create_recovery_token(user_to_recover: User):
 
 def get_user_to_recover(token):
     try:    
-        to_decode = jwt.decode(jwt=token,
+        decoded_token = jwt.decode(jwt=token,
                                key=os.getenv('RECOVERY_TOKEN_KEY'),
                                algorithms=[os.getenv('ALGORITHM')])
         
-        if to_decode.get('type') != 'recovery':
-            raise WrongTokenTypeError
+        if decoded_token.get('type') != 'recovery':
+            raise InvalidTokenTypeError
+        
+        jti = decoded_token.get('jti')
+        if redis_client.exists(f'used:{jti}') == True:
+            raise TokenAlreadyUsedError
 
-        user_id = to_decode.get('sub')
+        user_id = int(decoded_token.get('sub'))
         current_user = get_user_by_id(user_id)
 
         return current_user
 
-    except WrongTokenTypeError as e:
+    except InvalidTokenTypeError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+    
+    except TokenAlreadyUsedError as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)
     
     except ExpiredSignatureError:

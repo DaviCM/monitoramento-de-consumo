@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+
 from src.models.user_model import User
 from src.controllers.consumption_history_controller import *
 from src.schemas.consumption_real_schemas import *
@@ -6,7 +7,7 @@ from src.errors.consumption_errors import *
 from src.errors.user_errors import UserNotFoundError
 from src.auth.access_token_auth import get_current_user
 
-consumption_real_router = APIRouter(prefix="/consumos", tags=["Consumos Reais"])
+consumption_real_router = APIRouter(prefix="/api/consumos", tags=["Consumos Reais"])
 
 @consumption_real_router.post(path="/criar_consumo", status_code=status.HTTP_201_CREATED, response_model=ResponseConsumptionSchema)
 async def create_consumption_route(consumo_real_schema: ConsumptionSchema, current_user: User = Depends(get_current_user)):

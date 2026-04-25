@@ -1,0 +1,55 @@
+services:
+  backend:
+    build:
+      context: ../..
+      dockerfile: ./infra/docker/Dockerfile
+    container_name: backend
+    env_file: ../../.env
+    depends_on:
+      - postgres
+      - redis
+    expose:
+      - "8000"
+
+  postgres:
+    image: postgres:17.9
+    container_name: postgres
+    env_file: ../../.env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    expose:
+      - "5432"
+
+  redis:
+    image: redis:8.6.2
+    container_name: redis
+    volumes:
+      - ../../infra/redis/redis.conf:/redis/config/redis.conf
+      - redis_data:/redis/data/
+    command: >
+      bash -c "chown -R 999:999 /redis/data/ &&
+      redis-server /redis/config/redis.conf"
+    expose:
+      - "6379"
+
+  caddy:
+    image: caddy:2.11.2
+    container_name: caddy
+    cap_add:
+      - NET_ADMIN
+    depends_on:
+      - backend
+    volumes:
+      - ../../infra/caddy/:/etc/caddy
+      - caddy_data:/data
+      - caddy_config:/config
+    ports:
+     - "80:80"
+     - "443:443"
+
+
+volumes:
+  postgres_data:
+  redis_data:
+  caddy_data:
+  caddy_config:

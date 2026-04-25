@@ -1,13 +1,15 @@
+from datetime import date
+from decimal import Decimal
+from typing import Optional
+
+from sqlalchemy import select, and_
+from sqlalchemy.orm import Session
+
 from src.models.consumption_simulation_model import ConsumptionSimulation
 from src.models.user_model import User
 from src.errors.consumption_errors import *
 from src.errors.user_errors import UserNotFoundError
 from src.database.session import get_session
-from datetime import date
-from typing import Optional
-from decimal import Decimal
-from sqlalchemy import select, and_
-from sqlalchemy.orm import Session
 
 # Irá causar um erro caso um user tente editar um consumo que não é dele!
 def get_owned_simulation(session: Session, current_user: User, target_simulation_id: int):
