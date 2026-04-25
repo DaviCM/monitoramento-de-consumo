@@ -52,13 +52,14 @@ Para visualizar o repositório da aplicação mobile Liqua Monitor para qualquer
     ├── src/
     │   ├── api/
     │   ├── auth/
+    │   ├── clients/
     │   ├── controllers/
     │   ├── database/
     │   ├── errors/
     │   ├── models/
-    │   ├── redis/
     │   ├── schemas/
     │   ├── seeds/
+    │   ├── templates/
     │   ├── validators/
     │   ├── __init__.py
     │   └── main.py

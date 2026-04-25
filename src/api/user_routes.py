@@ -147,7 +147,7 @@ async def forgotten_password_route(params: ForgottenPasswordSchema):
     
     
 
-@user_router.post(path='/recuperar_senha', status_code=status.HTTP_200_OK, response_model=ResponseUserSchema)
+@user_router.post(path='/redefinir_senha', status_code=status.HTTP_200_OK, response_model=ResponseUserSchema)
 async def password_recovery_route(params: PasswordRecoverySchema):
     try:
         # Faz decode do token de recuperação
