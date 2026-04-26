@@ -41,7 +41,7 @@ def create_consumption(current_user: User, new_starting_date: date, new_ending_d
             si_measurement_unit=new_si_measurement_unit.lower(),
             value=new_value,
             creator_id=current_user.id,
-            creator=current_user.username
+            creator=current_user
             )
     else:
         new_consumption = ConsumptionHistory(
@@ -50,7 +50,7 @@ def create_consumption(current_user: User, new_starting_date: date, new_ending_d
             si_measurement_unit=new_si_measurement_unit.lower(),
             value=new_value,
             creator_id=current_user.id,
-            creator=current_user.username
+            creator=current_user
             )
     
     with get_session() as session:
