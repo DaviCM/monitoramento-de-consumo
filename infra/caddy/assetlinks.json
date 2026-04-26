@@ -1,0 +1,14 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.liquamonitor.liqua",
+      "sha256_cert_fingerprints": [
+        "76:47:69:F2:DA:D1:B5:7C:38:EC:CA:E6:DD:67:7A:0E:36:52:C3:1D:AC:EC:2B:DA:5C:50:6D:C4:9B:22:F9:03",
+        "5C:D8:3E:64:51:8B:97:43:5D:41:96:B3:E4:7C:F3:7D:DD:DB:8B:EB:67:C3:65:28:84:0A:2C:81:C1:70:D3:53",
+        "84:CC:75:2D:95:1E:99:EC:22:88:7E:1E:F0:44:CA:F3:4F:EE:5B:AC:0A:25:C5:4B:4A:97:A3:1A:8A:29:C0:EE"
+      ]
+    }
+  }
+]
