@@ -29,7 +29,7 @@ async def create_consumption_route(consumo_real_schema: ConsumptionSchema, curre
 
 
 
-@consumption_real_router.get(path="/listar_consumos", status_code=status.HTTP_200_OK, response_model=list[ResponseConsumptionSchema])
+@consumption_real_router.post(path="/listar_consumos", status_code=status.HTTP_200_OK, response_model=list[ResponseConsumptionSchema])
 async def list_consumption_route(params: QueryConsumptionSchema, current_user: User = Depends(get_current_user)):
     try:
         return get_user_consumption_history(current_user=current_user,

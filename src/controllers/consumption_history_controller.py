@@ -40,7 +40,6 @@ def create_consumption(current_user: User, new_starting_date: date, new_ending_d
             starting_date=new_starting_date,
             si_measurement_unit=new_si_measurement_unit.lower(),
             value=new_value,
-            creator_id=current_user.id,
             creator=current_user
             )
     else:
@@ -49,7 +48,6 @@ def create_consumption(current_user: User, new_starting_date: date, new_ending_d
             ending_date=new_ending_date,
             si_measurement_unit=new_si_measurement_unit.lower(),
             value=new_value,
-            creator_id=current_user.id,
             creator=current_user
             )
     

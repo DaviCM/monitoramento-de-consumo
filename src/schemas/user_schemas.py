@@ -18,10 +18,10 @@ class LoginUserSchema(BaseModel):
 
 
 class UpdateUserSchema(BaseModel):
-    new_real_name: Optional[str]
-    new_username: Optional[str]
-    new_email: Optional[EmailStr]
-    new_password: Optional[SecretStr]
+    new_real_name: Optional[str] = None
+    new_username: Optional[str] = None
+    new_email: Optional[EmailStr] = None
+    new_password: Optional[SecretStr] = None
 
 
 

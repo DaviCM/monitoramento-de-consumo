@@ -13,10 +13,10 @@ class GoalSchema(BaseModel):
 
 
 class UpdateGoalSchema(BaseModel):
-    new_starting_date: Optional[date]
-    new_ending_date: Optional[date]
-    new_si_measurement_unit: Optional[str]
-    new_value: Optional[Decimal]
+    new_starting_date: Optional[date] = None
+    new_ending_date: Optional[date] = None
+    new_si_measurement_unit: Optional[str] = None
+    new_value: Optional[Decimal] = None
 
 
 
@@ -26,14 +26,14 @@ class ResponseGoalSchema(BaseModel):
     id: int
     starting_date: date
     ending_date: date
-    measurement_unit: str
+    si_measurement_unit: str
     value: Decimal
     
     
 
 class QueryGoalSchema(BaseModel):
-    measurement_unit: Optional[str]
-    starting_date: Optional[date]
-    ending_date: Optional[date]
-    minimum_value: Optional[Decimal]
-    maximum_value: Optional[Decimal]
+    measurement_unit: Optional[str] = None
+    starting_date: Optional[date] = None
+    ending_date: Optional[date] = None
+    minimum_value: Optional[Decimal] = None
+    maximum_value: Optional[Decimal] = None

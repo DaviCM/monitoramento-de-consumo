@@ -40,7 +40,6 @@ def create_goal(current_user: User, new_starting_date: date, new_ending_date: da
         ending_date=new_ending_date,
         si_measurement_unit=new_si_measurement_unit.lower(),
         value=new_value,
-        creator_id=current_user.id,
         creator=current_user
         )
     
@@ -137,10 +136,7 @@ def delete_goal(current_user: User, target_goal_id: int):
     if current_user == None:
         raise UserNotFoundError
     
-    if current_user == None:
-        raise UserNotFoundError
-    
-    to_delete = get_owned_goals(session, current_user, target_goal_id)
     with get_session() as session:
+        to_delete = get_owned_goals(session, current_user, target_goal_id)
         session.delete(to_delete)
         

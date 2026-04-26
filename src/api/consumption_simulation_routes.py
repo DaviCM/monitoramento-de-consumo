@@ -33,7 +33,7 @@ async def create_simulation_route(to_create: SimulationSchema, current_user: Use
 # Essa função está retornando uma lista das respostas que são geradas automaticamente pelo Pydantic
 # Controller irá retornar uma lista de objetos de simulação, e o pydantic tratará com base no response_model
 # Para mostrar já formatado em JSON
-@consumption_simulation_router.get(path="/listar_simulacoes", status_code=status.HTTP_200_OK, response_model=list[ResponseSimulationSchema])
+@consumption_simulation_router.post(path="/listar_simulacoes", status_code=status.HTTP_200_OK, response_model=list[ResponseSimulationSchema])
 async def list_simulations_route(params: QuerySimulationSchema, current_user: User = Depends(get_current_user)):
     try:
         return get_user_simulations(current_user=current_user,

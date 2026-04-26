@@ -56,11 +56,16 @@ async def current_user_info(current_user: User = Depends(get_current_user)):
 @user_router.patch(path="/editar_usuario", status_code=status.HTTP_200_OK, response_model=ResponseUserSchema)
 async def edit_user_route(params: UpdateUserSchema, current_user: User = Depends(get_current_user)):
     try:
+        if params.new_password != None:
+            new_password = params.new_password.get_secret_value()
+        else:
+            new_password = None
+        
         return edit_user(current_user=current_user,
                          new_real_name=params.new_real_name,
                          new_username=params.new_username,
                          new_email=params.new_email,
-                         new_password=params.new_password.get_secret_value())
+                         new_password=new_password)
             
     except UserNotFoundError as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)
