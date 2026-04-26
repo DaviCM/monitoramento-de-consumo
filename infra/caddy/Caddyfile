@@ -5,20 +5,32 @@
 	grace_period 15s
 }
 
-front.liquamonitor.dev {
-	respond "Ooops! A aplicação web do Liqua Monitor não está pronta ainda. Até breve!"
+{$WEB_APP_URL} {
+	handle /.well-known/assetlinks.json {
+		encode zstd gzip
+		header {
+			X-Robots-Tag "noindex, nofollow"
+			Content-Type application/json
+		}
+		root * /etc/caddy/
+		rewrite * /assetlinks.json
+		file_server
+	}
+	handle {
+		respond "Ooops! A aplicação web do Liqua Monitor não está pronta ainda. Até breve!"
+	}
 }
 
-oi.liquamonitor.dev {
+www.liquamonitor.dev {
 	header {
 		X-Robots-Tag "noindex, nofollow"
 	}
 	handle {
-		redir https://backup.liquamonitor.dev{uri} 308
+		redir https://{$BACKEND_URL}{uri} 308
 	}
 }
 
-backup.liquamonitor.dev {
+{$BACKEND_URL} {
 	# Utiliza encoding nas respostas para velocidade. Esses são o padrão do HTTP
 	encode zstd gzip
 	log default {

@@ -35,6 +35,7 @@ services:
   caddy:
     image: caddy:2.11.2
     container_name: caddy
+    env_file: ../../.env
     cap_add:
       - NET_ADMIN
     depends_on:
