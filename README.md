@@ -34,6 +34,8 @@ Para visualizar o repositório da aplicação mobile Liqua Monitor para qualquer
 
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.128.2-009688?style=plastic&logo=fastapi)
 
+![Resend](https://img.shields.io/badge/Resend-2.29.0-000000?style=plastic&logo=resend)
+
 ![JWT](https://img.shields.io/badge/JSON_Web_Token-RFC_7519-F7DF1E?style=plastic&logo=javascript)
 
 ![Caddy](https://img.shields.io/badge/Caddy-2.11.2-1F88C0?style=plastic&logo=caddy)
