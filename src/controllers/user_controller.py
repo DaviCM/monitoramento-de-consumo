@@ -3,6 +3,7 @@ from typing import Optional
 from sqlalchemy import select
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
+from pydantic import SecretStr
 
 from src.models.user_model import User
 from src.database.session import get_session
@@ -19,7 +20,7 @@ def verify_password(hashed_password, password):
         return False
 
 
-def create_user(new_real_name, new_username, new_email, new_password):
+def create_user(new_real_name: str, new_username: str, new_email: str, new_password: SecretStr):
     if email_validators.verify_email(new_email) == False:
         raise InvalidEmailError
     
@@ -32,14 +33,14 @@ def create_user(new_real_name, new_username, new_email, new_password):
     if username_validators.username_already_exists(new_username) == True:
         raise UsernameAlreadyExistsError
     
-    if password_validators.verify_password(new_password) == False:
+    if password_validators.verify_password(new_password.get_secret_value()) == False:
         raise InvalidPasswordError
     
     new_user = User(
         real_name=new_real_name,
         username=new_username,
         email=new_email,
-        password=argon2.hash(new_password)
+        password=argon2.hash(new_password.get_secret_value())
         )
 
     with get_session() as session:
@@ -49,7 +50,7 @@ def create_user(new_real_name, new_username, new_email, new_password):
     return new_user
         
 
-def login(user_email, user_password):
+def login(user_email: str, user_password: SecretStr):
     stmt = select(User).where(User.email == user_email)
     with get_session() as session:
         returned_user = session.scalar(stmt)
@@ -59,7 +60,7 @@ def login(user_email, user_password):
     
     hashed_password = returned_user.password
     
-    if verify_password(hashed_password, user_password) == False:
+    if verify_password(hashed_password, user_password.get_secret_value()) == False:
         raise InvalidCredentialsError
     else:
         return returned_user
@@ -69,7 +70,7 @@ def edit_user(current_user: User,
               new_real_name: Optional[str] = None,
               new_username: Optional[str] = None,
               new_email: Optional[str] = None,
-              new_password: Optional[str] = None,
+              new_password: Optional[SecretStr] = None,
               ):
     
     if current_user == None:
@@ -87,7 +88,7 @@ def edit_user(current_user: User,
     if (new_email != None) and (email_validators.email_already_exists(new_email) == True):
         raise EmailAlreadyExistsError
     
-    if (new_password != None) and (password_validators.verify_password(new_password) == False):
+    if (new_password != None) and (password_validators.verify_password(new_password.get_secret_value()) == False):
         raise InvalidPasswordError
     
     
@@ -102,7 +103,7 @@ def edit_user(current_user: User,
             current_user.email = new_email
         
         if new_password != None:
-            current_user.password = argon2.hash(new_password)
+            current_user.password = argon2.hash(new_password.get_secret_value())
 
     return current_user
 
