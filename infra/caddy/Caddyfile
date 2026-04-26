@@ -9,7 +9,6 @@
 	handle /.well-known/assetlinks.json {
 		encode zstd gzip
 		header {
-			X-Robots-Tag "noindex, nofollow"
 			Content-Type application/json
 		}
 		root * /etc/caddy/
