@@ -59,7 +59,7 @@ async def list_goals_route(params: QueryGoalSchema, current_user: User = Depends
 async def edit_goal_route(id: int, params: UpdateGoalSchema, current_user: User = Depends(get_current_user)):
     try:
         return edit_goal(current_user=current_user,
-                         target_simulation=id,
+                         target_goal_id=id,
                          new_starting_date=params.new_starting_date,
                          new_ending_date=params.new_ending_date,
                          new_measurement_unit=params.new_si_measurement_unit,

@@ -15,12 +15,12 @@ from src.clients.email_client import send_recovery_email
 user_router = APIRouter(prefix="/api/usuarios", tags=["Usuário"])
 
 @user_router.post(path="/criar_usuario", status_code=status.HTTP_201_CREATED, response_model=ResponseUserSchema)
-async def create_user_route(new_user: UserSchema):
+async def create_user_route(params: UserSchema):
     try:
-        return create_user(new_user.real_name, 
-                           new_user.username, 
-                           new_user.email, 
-                           new_user.password.get_secret_value())
+        return create_user(new_real_name=params.real_name, 
+                           new_username=params.username, 
+                           new_email=params.email, 
+                           new_password=params.password)
         
     except InvalidEmailError as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)
@@ -56,16 +56,11 @@ async def current_user_info(current_user: User = Depends(get_current_user)):
 @user_router.patch(path="/editar_usuario", status_code=status.HTTP_200_OK, response_model=ResponseUserSchema)
 async def edit_user_route(params: UpdateUserSchema, current_user: User = Depends(get_current_user)):
     try:
-        if params.new_password != None:
-            new_password = params.new_password.get_secret_value()
-        else:
-            new_password = None
-        
         return edit_user(current_user=current_user,
                          new_real_name=params.new_real_name,
                          new_username=params.new_username,
                          new_email=params.new_email,
-                         new_password=new_password)
+                         new_password=params.new_password)
             
     except UserNotFoundError as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)
@@ -100,10 +95,10 @@ async def delete_user_route(refresh: RefreshTokenSchema, access_token: str = Dep
 
 
 @user_router.post(path="/login_usuario", status_code=status.HTTP_200_OK, response_model=ResponseTokensSchema)
-async def login_route(params: OAuth2PasswordRequestForm = Depends()):
+async def login_route(params: LoginUserSchema):
     try:
         # Fala username por ser o parâmetro do OAuth2, mas na verdade é o identificador do usuário, nesse caso email
-        user = login(params.username, params.password)
+        user = login(user_email=params.email, user_password=params.password)
         access_token = create_access_token(user)
         refresh_token = create_refresh_token(user)
         
@@ -145,7 +140,7 @@ async def forgotten_password_route(params: ForgottenPasswordSchema):
         user = get_user_by_email(params.email)
         token = create_recovery_token(user)
         
-        send_recovery_email(target_user=User, recovery_token=token)
+        send_recovery_email(target_user=user, recovery_token=token)
         
     except UserNotFoundError as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)
@@ -159,7 +154,7 @@ async def password_recovery_route(params: PasswordRecoverySchema):
         current_user = get_user_to_recover(params.recovery_token)
         
         edited_user = edit_user(current_user=current_user,
-                                new_password=params.new_password.get_secret_value())
+                                new_password=params.new_password)
         
         invalidate_recovery_token(params.recovery_token)
         

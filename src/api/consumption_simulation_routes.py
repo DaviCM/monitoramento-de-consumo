@@ -13,10 +13,10 @@ consumption_simulation_router = APIRouter(prefix= "/api/simulacoes", tags=["Simu
 async def create_simulation_route(to_create: SimulationSchema, current_user: User = Depends(get_current_user)):
     try:
         return create_simulation(current_user=current_user,
-                                 starting_date=to_create.starting_date,
-                                 ending_date=to_create.ending_date,
-                                 si_measurement_unit=to_create.si_measurement_unit,
-                                 value=to_create.value
+                                 new_starting_date=to_create.starting_date,
+                                 new_ending_date=to_create.ending_date,
+                                 new_si_measurement_unit=to_create.si_measurement_unit,
+                                 new_value=to_create.value
                                  )
         
     except UserNotFoundError as e:

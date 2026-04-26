@@ -38,17 +38,17 @@ def create_consumption(current_user: User, new_starting_date: date, new_ending_d
     if new_ending_date == None:
         new_consumption = ConsumptionHistory(
             starting_date=new_starting_date,
-            si_measurement_unit=new_si_measurement_unit.lower(),
+            si_measurement_unit=(new_si_measurement_unit.lower()).strip(),
             value=new_value,
-            creator=current_user
+            creator_id=current_user.id
             )
     else:
         new_consumption = ConsumptionHistory(
             starting_date=new_starting_date,
             ending_date=new_ending_date,
-            si_measurement_unit=new_si_measurement_unit.lower(),
+            si_measurement_unit=(new_si_measurement_unit.lower()).strip(),
             value=new_value,
-            creator=current_user
+            creator_id=current_user.id
             )
     
     with get_session() as session:
@@ -84,7 +84,7 @@ def get_user_consumption_history(current_user : User,
     stmt = select(ConsumptionHistory).where(ConsumptionHistory.creator_id == current_user.id)
     
     if target_measurement_unit != None:
-        stmt = stmt.where(ConsumptionHistory.si_measurement_unit == target_measurement_unit.lower())
+        stmt = stmt.where(ConsumptionHistory.si_measurement_unit == (target_measurement_unit.lower()).strip())
     
     # comparação por igualdade ou maioridade, pois quero datas depois da data de início
     if target_starting_date != None:
@@ -137,7 +137,7 @@ def edit_consumption(current_user: User,
             to_edit.ending_date = new_ending_date
             
         if new_measurement_unit != None:
-            to_edit.si_measurement_unit = new_measurement_unit.lower()
+            to_edit.si_measurement_unit = (new_measurement_unit.lower()).strip()
             
         if new_value != None:
             to_edit.value = new_value
