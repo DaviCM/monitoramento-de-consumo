@@ -58,7 +58,7 @@ async def list_consumption_route(params: QueryConsumptionSchema, current_user: U
 async def edit_consumption_route(id: int, params: UpdateConsumptionSchema, current_user: User = Depends(get_current_user)):
     try:
         return edit_consumption(current_user=current_user,
-                                target_consumption=id,
+                                target_consumption_id=id,
                                 new_starting_date=params.new_starting_date,
                                 new_ending_date=params.new_ending_date,
                                 new_measurement_unit=params.new_si_measurement_unit,

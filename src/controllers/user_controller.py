@@ -2,6 +2,7 @@ from typing import Optional
 
 from sqlalchemy import select
 from argon2 import PasswordHasher
+from argon2.exceptions import VerifyMismatchError
 
 from src.models.user_model import User
 from src.database.session import get_session
@@ -12,7 +13,10 @@ from src.validators import email_validators, password_validators, username_valid
 argon2 = PasswordHasher()
 
 def verify_password(hashed_password, password):
-    return argon2.verify(hashed_password, password)
+    try:
+        return argon2.verify(hashed_password, password)
+    except VerifyMismatchError:
+        return False
 
 
 def create_user(new_real_name, new_username, new_email, new_password):

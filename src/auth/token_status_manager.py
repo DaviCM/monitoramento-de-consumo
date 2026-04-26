@@ -20,7 +20,7 @@ def blacklist_token(token: str, token_type: Literal['access', 'refresh']):
                                    algorithms=[os.getenv('ALGORITHM')])
 
         jti = decoded_token.get('jti')
-        token_expire = datetime.fromtimestamp(decoded_token.get('exp'))
+        token_expire = datetime.fromtimestamp(timestamp=decoded_token.get('exp'), tz=timezone.utc)
         redis_client.set(name=f'blacklisted:{jti}', 
                          value=1,
                          ex=(token_expire - datetime.now(tz=timezone.utc)))
@@ -39,7 +39,7 @@ def invalidate_recovery_token(token):
                                    algorithms=[os.getenv('ALGORITHM')])
         
         jti = decoded_token.get('jti')
-        token_expire = datetime.fromtimestamp(decoded_token.get('exp'))
+        token_expire = datetime.fromtimestamp(timestamp=decoded_token.get('exp'), tz=timezone.utc)
         redis_client.set(name=f'used:{jti}',
                          value=1,
                          ex=token_expire - datetime.now(tz=timezone.utc))
