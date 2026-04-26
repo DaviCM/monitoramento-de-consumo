@@ -92,7 +92,10 @@ def edit_user(current_user: User,
         raise InvalidPasswordError
     
     
-    with get_session():
+    with get_session() as session:
+        # session.merge reintegra um objeto detached à sessão corrente, ideal para sabermos quem é o usuário antes de o manipular.
+        session.merge(current_user)
+        
         if new_real_name != None:
             current_user.real_name = new_real_name
         
@@ -113,7 +116,8 @@ def delete_self(current_user: User):
         raise UserNotFoundError
     
     with get_session() as session:
-            session.delete(current_user)
+        session.merge(current_user)
+        session.delete(current_user)
 
 
 def get_user_by_id(target_id):

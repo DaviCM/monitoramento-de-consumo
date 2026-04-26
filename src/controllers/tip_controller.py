@@ -21,7 +21,7 @@ def create_tips():
         for tip_dict in new_tips:
             try:
                 new_tip = Tip(
-                    si_measurement_unit=(tip_dict['si_measurement_unit']).lower(),
+                    si_measurement_unit=((tip_dict['si_measurement_unit']).lower()).strip(),
                     tip=tip_dict['tip']
                     )
 
@@ -36,7 +36,7 @@ def create_tips():
 
 
 def get_tip(measurement_unit):
-    stmt = select(Tip).where(Tip.si_measurement_unit == (measurement_unit.lower()))
+    stmt = select(Tip).where(Tip.si_measurement_unit == (measurement_unit.lower()).strip())
     
     with get_session() as session:
         result = session.scalars(stmt).all()

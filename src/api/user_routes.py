@@ -140,7 +140,7 @@ async def forgotten_password_route(params: ForgottenPasswordSchema):
         user = get_user_by_email(params.email)
         token = create_recovery_token(user)
         
-        send_recovery_email(target_user=User, recovery_token=token)
+        send_recovery_email(target_user=user, recovery_token=token)
         
     except UserNotFoundError as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)
