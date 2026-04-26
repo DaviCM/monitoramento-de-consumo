@@ -26,16 +26,16 @@ def send_recovery_email(target_user: User, recovery_token: str):
             'from': f'{os.getenv('SENDER_NAME')} <{os.getenv('SENDER_ADDRESS')}>',
             'to': target_user.email,
             'subject': 'Pedido de recuperação de senha do Liqua Monitor',
-            
             'html': recovery_html
         }
 
         resp = resend.Emails.send(params=email_params)
-        logger.info(f'Recovery e-mail sent at {datetime.now(tz=timezone.utc)}',
-                    extra=f'User: {target_user.real_name}, User ID: {target_user.id}, Email ID: {resp.id}'
+        logger.info(f'E=mail de recuperação de senha enviado às {datetime.now(tz=timezone.utc)} UTC',
+                    extra=f'Usuário: {target_user.real_name}, ID: {target_user.id}, E-mail ID: {resp.id}'
                     )
+        
     except ResendError as e:
-        logger.error(f'Error while sending recovery e-mail at {datetime.now(tz=timezone.utc)}',
+        logger.error(f'Erro ao enviar e=mail de recuperação às {datetime.now(tz=timezone.utc)} UTC',
                      extra=str(e)
                      )
 
