@@ -30,7 +30,7 @@ async def create_goal_route(to_create: GoalSchema, current_user: User = Depends(
 
 
 
-@goals_router.get(path="/listar_metas", status_code=status.HTTP_200_OK, response_model=list[ResponseGoalSchema])
+@goals_router.post(path="/listar_metas", status_code=status.HTTP_200_OK, response_model=list[ResponseGoalSchema])
 async def list_goals_route(params: QueryGoalSchema, current_user: User = Depends(get_current_user)):
     try:
         return get_user_goals(current_user=current_user,

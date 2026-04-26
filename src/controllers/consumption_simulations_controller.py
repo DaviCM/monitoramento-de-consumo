@@ -40,7 +40,6 @@ def create_simulation(current_user: User, new_starting_date: date, new_ending_da
         ending_date=new_ending_date,
         si_measurement_unit=new_si_measurement_unit.lower(),
         value=new_value,
-        creator_id=current_user.id,
         creator=current_user
         )
     
