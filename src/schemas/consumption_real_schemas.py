@@ -26,7 +26,7 @@ class ResponseConsumptionSchema(BaseModel):
     id: int
     starting_date: date
     ending_date: date
-    si_measurement_unitmeasurement_unit: str
+    si_measurement_unit: str
     value: Decimal
     
     
