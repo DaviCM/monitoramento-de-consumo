@@ -94,21 +94,21 @@ def edit_user(current_user: User,
     
     with get_session() as session:
         # session.merge reintegra um objeto detached à sessão corrente, ideal para sabermos quem é o usuário antes de o manipular.
-        session.merge(current_user)
+        to_edit = session.merge(current_user)
         
         if new_real_name != None:
-            current_user.real_name = new_real_name
+            to_edit.real_name = new_real_name
         
         if new_username != None:
-            current_user.username = new_username
+            to_edit.username = new_username
             
         if new_email != None:
-            current_user.email = new_email
+            to_edit.email = new_email
         
         if new_password != None:
-            current_user.password = argon2.hash(new_password.get_secret_value())
+            to_edit.password = argon2.hash(new_password.get_secret_value())
 
-    return current_user
+    return to_edit
 
 
 def delete_self(current_user: User):
@@ -116,8 +116,8 @@ def delete_self(current_user: User):
         raise UserNotFoundError
     
     with get_session() as session:
-        session.merge(current_user)
-        session.delete(current_user)
+        to_delete = session.merge(current_user)
+        session.delete(to_delete)
 
 
 def get_user_by_id(target_id):
