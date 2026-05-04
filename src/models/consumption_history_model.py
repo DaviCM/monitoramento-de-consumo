@@ -7,6 +7,7 @@ class ConsumptionHistory(Base):
     __tablename__ = 'consumption_history'   
     
     id = Column(Integer, primary_key=True)
+    description = Column(String(280), nullable=True)
     starting_date = Column(Date, nullable=False)
     ending_date = Column(Date, server_default=func.now())
     si_measurement_unit = Column(String(50), nullable=False)

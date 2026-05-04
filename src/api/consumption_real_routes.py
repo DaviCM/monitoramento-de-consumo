@@ -10,14 +10,10 @@ from src.auth.access_token_auth import get_current_user
 consumption_real_router = APIRouter(prefix="/api/consumos", tags=["Consumos Reais"])
 
 @consumption_real_router.post(path="/criar_consumo", status_code=status.HTTP_201_CREATED, response_model=ResponseConsumptionSchema)
-async def create_consumption_route(consumo_real_schema: ConsumptionSchema, current_user: User = Depends(get_current_user)):
+async def create_consumption_route(to_create: ConsumptionSchema, current_user: User = Depends(get_current_user)):
     try:
-        return create_consumption(current_user=current_user,
-                                  new_starting_date=consumo_real_schema.starting_date,
-                                  new_ending_date=consumo_real_schema.ending_date,
-                                  new_si_measurement_unit=consumo_real_schema.si_measurement_unit,
-                                  new_value=consumo_real_schema.value
-                                  )
+        return create_consumption(current_user=current_user, params=to_create)
+    
     except UserNotFoundError as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)
     
@@ -32,13 +28,7 @@ async def create_consumption_route(consumo_real_schema: ConsumptionSchema, curre
 @consumption_real_router.post(path="/listar_consumos", status_code=status.HTTP_200_OK, response_model=list[ResponseConsumptionSchema])
 async def list_consumption_route(params: QueryConsumptionSchema, current_user: User = Depends(get_current_user)):
     try:
-        return get_user_consumption_history(current_user=current_user,
-                                            target_measurement_unit=params.measurement_unit, 
-                                            target_starting_date=params.starting_date,
-                                            target_ending_date=params.ending_date,
-                                            minimum_value=params.minimum_value, 
-                                            maximum_value=params.maximum_value,
-                                            )
+        return get_user_consumption_history(current_user=current_user, params=params)
         
     except UserNotFoundError as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)
@@ -57,13 +47,7 @@ async def list_consumption_route(params: QueryConsumptionSchema, current_user: U
 @consumption_real_router.patch(path="/editar_consumo/{id}", status_code=status.HTTP_200_OK, response_model=ResponseConsumptionSchema)
 async def edit_consumption_route(id: int, params: UpdateConsumptionSchema, current_user: User = Depends(get_current_user)):
     try:
-        return edit_consumption(current_user=current_user,
-                                target_consumption_id=id,
-                                new_starting_date=params.new_starting_date,
-                                new_ending_date=params.new_ending_date,
-                                new_measurement_unit=params.new_si_measurement_unit,
-                                new_value=params.new_value
-                                )
+        return edit_consumption(current_user=current_user, target_consumption_id=id, params=params)
         
     except UserNotFoundError as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)

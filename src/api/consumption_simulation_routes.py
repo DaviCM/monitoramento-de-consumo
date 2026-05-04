@@ -12,12 +12,7 @@ consumption_simulation_router = APIRouter(prefix= "/api/simulacoes", tags=["Simu
 @consumption_simulation_router.post(path="/criar_simulacao", status_code=status.HTTP_201_CREATED, response_model=ResponseSimulationSchema)
 async def create_simulation_route(to_create: SimulationSchema, current_user: User = Depends(get_current_user)):
     try:
-        return create_simulation(current_user=current_user,
-                                 new_starting_date=to_create.starting_date,
-                                 new_ending_date=to_create.ending_date,
-                                 new_si_measurement_unit=to_create.si_measurement_unit,
-                                 new_value=to_create.value
-                                 )
+        return create_simulation(current_user=current_user, params=to_create)
         
     except UserNotFoundError as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)
@@ -36,13 +31,7 @@ async def create_simulation_route(to_create: SimulationSchema, current_user: Use
 @consumption_simulation_router.post(path="/listar_simulacoes", status_code=status.HTTP_200_OK, response_model=list[ResponseSimulationSchema])
 async def list_simulations_route(params: QuerySimulationSchema, current_user: User = Depends(get_current_user)):
     try:
-        return get_user_simulations(current_user=current_user,
-                                    target_measurement_unit=params.measurement_unit, 
-                                    target_starting_date=params.starting_date,
-                                    target_ending_date=params.ending_date,
-                                    minimum_value=params.minimum_value, 
-                                    maximum_value=params.maximum_value,
-                                    )
+        return get_user_simulations(current_user=current_user, params=params)
     
     except UserNotFoundError as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)
@@ -61,13 +50,7 @@ async def list_simulations_route(params: QuerySimulationSchema, current_user: Us
 @consumption_simulation_router.patch(path="/editar_simulacao/{id}", status_code=status.HTTP_200_OK, response_model=ResponseSimulationSchema)
 async def edit_simulation_route(id: int, params: UpdateSimulationSchema, current_user: User = Depends(get_current_user)):
     try:
-        return edit_simulation(current_user=current_user,
-                               target_simulation_id=id,
-                               new_starting_date=params.new_starting_date,
-                               new_ending_date=params.new_ending_date,
-                               new_measurement_unit=params.new_si_measurement_unit,
-                               new_value=params.new_value
-                               )
+        return edit_simulation(current_user=current_user, target_simulation_id=id, params=params)
     
     except UserNotFoundError as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)

@@ -5,6 +5,7 @@ from typing import Optional
 from pydantic import BaseModel, ConfigDict
 
 class SimulationSchema(BaseModel):
+    description: Optional[str] = None
     starting_date: date
     ending_date: date
     si_measurement_unit: str
@@ -13,6 +14,7 @@ class SimulationSchema(BaseModel):
 
 
 class UpdateSimulationSchema(BaseModel):
+    new_description: Optional[str] = None
     new_starting_date: Optional[date] = None
     new_ending_date: Optional[date] = None
     new_si_measurement_unit: Optional[str] = None
@@ -27,6 +29,7 @@ class ResponseSimulationSchema(BaseModel):
     model_config = (ConfigDict(from_attributes=True))
     
     id: int
+    description: str
     starting_date: date
     ending_date: date
     si_measurement_unit: str

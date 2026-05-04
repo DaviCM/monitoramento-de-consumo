@@ -12,12 +12,7 @@ goals_router = APIRouter(prefix="/api/metas", tags=["Metas de Consumo"])
 @goals_router.post(path="/criar_meta", status_code=status.HTTP_201_CREATED, response_model=ResponseGoalSchema)
 async def create_goal_route(to_create: GoalSchema, current_user: User = Depends(get_current_user)):
     try:
-        return create_goal(current_user=current_user,
-                           new_starting_date=to_create.starting_date,
-                           new_ending_date=to_create.ending_date,
-                           new_si_measurement_unit=to_create.si_measurement_unit,
-                           new_value=to_create.value
-                           )
+        return create_goal(current_user=current_user, params=to_create)
         
     except UserNotFoundError as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)
@@ -33,13 +28,7 @@ async def create_goal_route(to_create: GoalSchema, current_user: User = Depends(
 @goals_router.post(path="/listar_metas", status_code=status.HTTP_200_OK, response_model=list[ResponseGoalSchema])
 async def list_goals_route(params: QueryGoalSchema, current_user: User = Depends(get_current_user)):
     try:
-        return get_user_goals(current_user=current_user,
-                              target_measurement_unit=params.measurement_unit,
-                              target_starting_date=params.starting_date,
-                              target_ending_date=params.ending_date,
-                              minimum_value=params.minimum_value,
-                              maximum_value=params.maximum_value
-                              )
+        return get_user_goals(current_user=current_user, params=params)
         
     except UserNotFoundError as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)
@@ -58,13 +47,7 @@ async def list_goals_route(params: QueryGoalSchema, current_user: User = Depends
 @goals_router.patch(path="/editar_meta/{id}", status_code=status.HTTP_200_OK, response_model=ResponseGoalSchema)
 async def edit_goal_route(id: int, params: UpdateGoalSchema, current_user: User = Depends(get_current_user)):
     try:
-        return edit_goal(current_user=current_user,
-                         target_goal_id=id,
-                         new_starting_date=params.new_starting_date,
-                         new_ending_date=params.new_ending_date,
-                         new_measurement_unit=params.new_si_measurement_unit,
-                         new_value=params.new_value
-                         )
+        return edit_goal(current_user=current_user, target_goal_id=id, params=params)
         
     except UserNotFoundError as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)

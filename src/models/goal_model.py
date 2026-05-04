@@ -7,6 +7,7 @@ class Goal(Base):
     __tablename__ = 'goals'
 
     id = Column(Integer, primary_key=True)
+    description = Column(String(280), nullable=True)
     starting_date = Column(Date, nullable=False)
     ending_date = Column(Date, nullable=False)
     si_measurement_unit = Column(String(50), nullable=False)

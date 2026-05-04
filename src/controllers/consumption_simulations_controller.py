@@ -1,12 +1,9 @@
-from datetime import date
-from decimal import Decimal
-from typing import Optional
-
 from sqlalchemy import select, and_
 from sqlalchemy.orm import Session
 
 from src.models.consumption_simulation_model import ConsumptionSimulation
 from src.models.user_model import User
+from src.schemas.consumption_simulation_schemas import SimulationSchema, UpdateSimulationSchema, QuerySimulationSchema
 from src.errors.consumption_errors import *
 from src.errors.user_errors import UserNotFoundError
 from src.database.session import get_session
@@ -25,23 +22,17 @@ def get_owned_simulation(session: Session, current_user: User, target_simulation
     return result
 
 
-def create_simulation(current_user: User, new_starting_date: date, new_ending_date: date, new_si_measurement_unit: str, new_value: Decimal):
+def create_simulation(current_user: User, params: SimulationSchema):
     if current_user == None:
         raise UserNotFoundError
     
-    if (new_starting_date == None) or (new_starting_date > new_ending_date):
+    if (params.starting_date == None) or (params.starting_date > params.ending_date):
         raise InvalidDateError
     
-    if new_value <= 0:
+    if params.value <= 0:
         raise InvalidConsumptionValueError
     
-    new_simulation = ConsumptionSimulation(
-        starting_date=new_starting_date,
-        ending_date=new_ending_date,
-        si_measurement_unit=(new_si_measurement_unit.lower()).strip(),
-        value=new_value,
-        creator_id=current_user.id
-        )
+    new_simulation = ConsumptionSimulation(**(params.model_dump(exclude_unset=True)))
     
     with get_session() as session:
         session.add(new_simulation)
@@ -51,41 +42,35 @@ def create_simulation(current_user: User, new_starting_date: date, new_ending_da
     return new_simulation
     
     
-def get_user_simulations(current_user : User, 
-                                 target_measurement_unit: Optional[str] = None, 
-                                 target_starting_date: Optional[date] = None,
-                                 target_ending_date: Optional[date] = None,
-                                 minimum_value: Optional[Decimal] = None, 
-                                 maximum_value: Optional[Decimal] = None
-                                 ):
+def get_user_simulations(current_user: User, params: QuerySimulationSchema):
     if current_user == None:
         raise UserNotFoundError
     
-    if (maximum_value != None) and (minimum_value != None):
-        if minimum_value > maximum_value:
+    if (params.maximum_value != None) and (params.minimum_value != None):
+        if params.minimum_value > params.maximum_value:
             raise InvalidConsumptionValueError
     
-    if (target_ending_date != None) and (target_starting_date != None):
-        if target_starting_date > target_ending_date:
+    if (params.ending_date != None) and (params.starting_date != None):
+        if params.starting_date > params.ending_date:
             raise InvalidDateError
 
     stmt = select(ConsumptionSimulation).where(ConsumptionSimulation.creator_id == current_user.id)
     
-    if target_measurement_unit != None:
-        stmt = stmt.where(ConsumptionSimulation.si_measurement_unit == (target_measurement_unit.lower()).strip())
+    if params.measurement_unit != None:
+        stmt = stmt.where(ConsumptionSimulation.si_measurement_unit == (params.measurement_unit.lower()).strip())
     
     # comparação por igualdade ou maioridade, pois quero datas depois da data de início
-    if target_starting_date != None:
-        stmt = stmt.where(ConsumptionSimulation.starting_date >= target_starting_date)
+    if params.starting_date != None:
+        stmt = stmt.where(ConsumptionSimulation.starting_date >= params.starting_date)
         
-    if target_ending_date != None:
-        stmt = stmt.where(ConsumptionSimulation.ending_date <= target_ending_date)
+    if params.ending_date != None:
+        stmt = stmt.where(ConsumptionSimulation.ending_date <= params.ending_date)
         
-    if minimum_value != None:
-        stmt = stmt.where(ConsumptionSimulation.value >= minimum_value)
+    if params.minimum_value != None:
+        stmt = stmt.where(ConsumptionSimulation.value >= params.minimum_value)
         
-    if maximum_value != None:
-        stmt = stmt.where(ConsumptionSimulation.value <= maximum_value)
+    if params.maximum_value != None:
+        stmt = stmt.where(ConsumptionSimulation.value <= params.maximum_value)
     
     # All já trata os scalars como objetos separados, pois ele os consome inteiros
     with get_session() as session:
@@ -97,39 +82,34 @@ def get_user_simulations(current_user : User,
     return simulations
 
 
-def edit_simulation(current_user: User,
-                     target_simulation_id: int,
-                     new_starting_date: Optional[date] = None,
-                     new_ending_date: Optional[date] = None,
-                     new_measurement_unit: Optional[str] = None,
-                     new_value: Optional[Decimal] = None):
+def edit_simulation(current_user: User, target_simulation_id: int, params: UpdateSimulationSchema):
     
     if current_user == None:
         raise UserNotFoundError
     
-    if (new_value != None) and (new_value <= 0):
+    if (params.new_value != None) and (params.new_value <= 0):
         raise InvalidConsumptionValueError
         
     with get_session() as session:
         to_edit = get_owned_simulation(session, current_user, target_simulation_id)
 
-        if (new_starting_date != None) and (new_starting_date > to_edit.ending_date):
+        if (params.new_starting_date != None) and (params.new_starting_date > to_edit.ending_date):
             raise InvalidDateError
 
-        if (new_ending_date != None) and (new_ending_date < to_edit.starting_date):
+        if (params.new_ending_date != None) and (params.new_ending_date < to_edit.starting_date):
             raise InvalidDateError
     
-        if new_starting_date != None:
-            to_edit.starting_date = new_starting_date
+        if params.new_starting_date != None:
+            to_edit.starting_date = params.new_starting_date
             
-        if new_ending_date != None:
-            to_edit.ending_date = new_ending_date
+        if params.new_ending_date != None:
+            to_edit.ending_date = params.new_ending_date
             
-        if new_measurement_unit != None:
-            to_edit.si_measurement_unit = (new_measurement_unit.lower()).strip()
+        if params.new_si_measurement_unit != None:
+            to_edit.si_measurement_unit = (params.new_si_measurement_unit.lower()).strip()
             
-        if new_value != None:
-            to_edit.value = new_value
+        if params.new_value != None:
+            to_edit.value = params.new_value
         
     return to_edit
 
