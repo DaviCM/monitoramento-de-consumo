@@ -25,11 +25,20 @@ www.liquamonitor.dev {
 		X-Robots-Tag "noindex, nofollow"
 	}
 	handle {
-		redir https://{$BACKEND_URL}{uri} 308
+		redir https://{$BACKEND_MAIN_URL}{uri} 308
 	}
 }
 
-{$BACKEND_URL} {
+{$BACKEND_ALT_URL} {
+	header {
+		X-Robots-Tag "noindex, nofollow"
+	}
+	handle {
+		redir https://{$BACKEND_MAIN_URL}{uri} 308
+	}
+}
+
+{$BACKEND_MAIN_URL} {
 	# Utiliza encoding nas respostas para velocidade. Esses são o padrão do HTTP
 	encode zstd gzip
 	log default {
