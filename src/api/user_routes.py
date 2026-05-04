@@ -15,12 +15,9 @@ from src.clients.email_client import send_recovery_email
 user_router = APIRouter(prefix="/api/usuarios", tags=["Usuário"])
 
 @user_router.post(path="/criar_usuario", status_code=status.HTTP_201_CREATED, response_model=ResponseUserSchema)
-async def create_user_route(params: UserSchema):
+async def create_user_route(to_create: UserSchema):
     try:
-        return create_user(new_real_name=params.real_name, 
-                           new_username=params.username, 
-                           new_email=params.email, 
-                           new_password=params.password)
+        return create_user(params=to_create)
         
     except InvalidEmailError as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)
@@ -56,11 +53,7 @@ async def current_user_info(current_user: User = Depends(get_current_user)):
 @user_router.patch(path="/editar_usuario", status_code=status.HTTP_200_OK, response_model=ResponseUserSchema)
 async def edit_user_route(params: UpdateUserSchema, current_user: User = Depends(get_current_user)):
     try:
-        return edit_user(current_user=current_user,
-                         new_real_name=params.new_real_name,
-                         new_username=params.new_username,
-                         new_email=params.new_email,
-                         new_password=params.new_password)
+        return edit_user(current_user=current_user, params=params)
             
     except UserNotFoundError as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)
@@ -153,8 +146,7 @@ async def password_recovery_route(params: PasswordRecoverySchema):
         # Faz decode do token de recuperação
         current_user = get_user_to_recover(params.recovery_token)
         
-        edited_user = edit_user(current_user=current_user,
-                                new_password=params.new_password)
+        edited_user = edit_user(current_user=current_user, params=UpdateUserSchema(new_password=params.new_password))
         
         invalidate_recovery_token(params.recovery_token)
         

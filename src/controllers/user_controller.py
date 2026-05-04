@@ -6,6 +6,7 @@ from argon2.exceptions import VerifyMismatchError
 from pydantic import SecretStr
 
 from src.models.user_model import User
+from src.schemas.user_schemas import UserSchema, UpdateUserSchema
 from src.database.session import get_session
 from src.errors.user_errors import *
 from src.validators import email_validators, password_validators, username_validators
@@ -20,31 +21,23 @@ def verify_password(hashed_password, password):
         return False
 
 
-def create_user(new_real_name: str, 
-                new_username: str, 
-                new_email: str, 
-                new_password: SecretStr):
-    if email_validators.verify_email(new_email) == False:
+def create_user(params: UserSchema):
+    if email_validators.verify_email(params.email) == False:
         raise InvalidEmailError
     
-    if email_validators.email_already_exists(new_email) == True:
+    if email_validators.email_already_exists(params.email) == True:
         raise EmailAlreadyExistsError
     
-    if username_validators.verify_username(new_username) == False:
+    if username_validators.verify_username(params.username) == False:
         raise InvalidUsernameError
     
-    if username_validators.username_already_exists(new_username) == True:
+    if username_validators.username_already_exists(params.username) == True:
         raise UsernameAlreadyExistsError
     
-    if password_validators.verify_password(new_password.get_secret_value()) == False:
+    if password_validators.verify_password(params.password.get_secret_value()) == False:
         raise InvalidPasswordError
     
-    new_user = User(
-        real_name=new_real_name,
-        username=new_username,
-        email=new_email.lower(),
-        password=argon2.hash(new_password.get_secret_value())
-        )
+    new_user = User(**(params.model_dump()))
 
     with get_session() as session:
         session.add(new_user)
@@ -69,29 +62,24 @@ def login(user_email: str, user_password: SecretStr):
         return returned_user
 
 
-def edit_user(current_user: User,
-              new_real_name: Optional[str] = None,
-              new_username: Optional[str] = None,
-              new_email: Optional[str] = None,
-              new_password: Optional[SecretStr] = None,
-              ):
+def edit_user(current_user: User, params: UpdateUserSchema):
     
     if current_user == None:
         raise UserNotFoundError
     
-    if (new_username != None) and (username_validators.verify_username(new_username) == False):
+    if (params.new_username != None) and (username_validators.verify_username(params.new_username) == False):
         raise InvalidUsernameError
     
-    if (new_username != None) and (username_validators.username_already_exists(new_username) == True):
+    if (params.new_username != None) and (username_validators.username_already_exists(params.new_username) == True):
         raise UsernameAlreadyExistsError
 
-    if (new_email != None) and (email_validators.verify_email(new_email) == False):
+    if (params.new_email != None) and (email_validators.verify_email(params.new_email) == False):
         raise InvalidEmailError
     
-    if (new_email != None) and (email_validators.email_already_exists(new_email) == True):
+    if (params.new_email != None) and (email_validators.email_already_exists(params.new_email) == True):
         raise EmailAlreadyExistsError
     
-    if (new_password != None) and (password_validators.verify_password(new_password.get_secret_value()) == False):
+    if (params.new_password != None) and (password_validators.verify_password(params.new_password.get_secret_value()) == False):
         raise InvalidPasswordError
     
     
@@ -99,17 +87,17 @@ def edit_user(current_user: User,
         # session.merge reintegra um objeto detached à sessão corrente, ideal para sabermos quem é o usuário antes de o manipular.
         to_edit = session.merge(current_user)
         
-        if new_real_name != None:
-            to_edit.real_name = new_real_name
+        if params.new_real_name != None:
+            to_edit.real_name = params.new_real_name
         
-        if new_username != None:
-            to_edit.username = new_username
+        if params.new_username != None:
+            to_edit.username = params.new_username
             
-        if new_email != None:
-            to_edit.email = new_email.lower()
+        if params.new_email != None:
+            to_edit.email = params.new_email.lower()
         
-        if new_password != None:
-            to_edit.password = argon2.hash(new_password.get_secret_value())
+        if params.new_password != None:
+            to_edit.password = argon2.hash(params.new_password.get_secret_value())
 
     return to_edit
 
