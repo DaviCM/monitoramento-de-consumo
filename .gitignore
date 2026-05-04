@@ -1,6 +1,9 @@
 # Arquivos de teste
 src/**/test.py
 
+# Pyenv (linux)
+*.python-version
+
 # Configs do redis
 redis.conf
 
