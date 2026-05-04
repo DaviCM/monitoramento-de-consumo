@@ -4,8 +4,8 @@ from sqlalchemy import select
 from src.database.session import get_session
 from src.models.user_model import User
 
-def email_already_exists(verifying_email):
-    stmt = select(User.email).where(User.email == verifying_email)
+def email_already_exists(verifying_email: str):
+    stmt = select(User.email).where(User.email == verifying_email.lower())
     
     with get_session() as session:
         result = session.scalar(stmt)

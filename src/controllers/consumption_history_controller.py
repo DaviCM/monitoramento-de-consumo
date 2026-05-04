@@ -26,7 +26,10 @@ def create_consumption(current_user: User, params: ConsumptionSchema):
     if current_user == None:
         raise UserNotFoundError
     
-    if (params.starting_date == None) or (params.starting_date > params.ending_date):
+    if params.starting_date == None:
+        raise InvalidDateError
+    
+    if (params.ending_date != None) and (params.starting_date > params.ending_date):
         raise InvalidDateError
     
     if params.value <= 0:
