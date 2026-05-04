@@ -35,7 +35,7 @@ def create_consumption(current_user: User, params: ConsumptionSchema):
     if params.value <= 0:
         raise InvalidConsumptionValueError
     
-    new_consumption = ConsumptionHistory(**(params.model_dump(exclude_unset=True)))
+    new_consumption = ConsumptionHistory(**(params.model_dump(exclude_none=True)))
     
     with get_session() as session:
         session.add(new_consumption)

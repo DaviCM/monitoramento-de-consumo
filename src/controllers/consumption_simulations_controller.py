@@ -32,7 +32,7 @@ def create_simulation(current_user: User, params: SimulationSchema):
     if params.value <= 0:
         raise InvalidConsumptionValueError
     
-    new_simulation = ConsumptionSimulation(**(params.model_dump(exclude_unset=True)))
+    new_simulation = ConsumptionSimulation(**(params.model_dump(exclude_none=True)))
     
     with get_session() as session:
         session.add(new_simulation)

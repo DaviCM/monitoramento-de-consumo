@@ -32,7 +32,7 @@ def create_goal(current_user: User, params: GoalSchema):
     if params.value <= 0:
         raise InvalidConsumptionValueError
     
-    new_goal = Goal(**(params.model_dump(exclude_unset=True)))
+    new_goal = Goal(**(params.model_dump(exclude_none=True)))
     
     with get_session() as session:
         session.add(new_goal)
