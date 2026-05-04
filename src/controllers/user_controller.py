@@ -20,7 +20,10 @@ def verify_password(hashed_password, password):
         return False
 
 
-def create_user(new_real_name: str, new_username: str, new_email: str, new_password: SecretStr):
+def create_user(new_real_name: str, 
+                new_username: str, 
+                new_email: str, 
+                new_password: SecretStr):
     if email_validators.verify_email(new_email) == False:
         raise InvalidEmailError
     
@@ -39,7 +42,7 @@ def create_user(new_real_name: str, new_username: str, new_email: str, new_passw
     new_user = User(
         real_name=new_real_name,
         username=new_username,
-        email=new_email,
+        email=new_email.lower(),
         password=argon2.hash(new_password.get_secret_value())
         )
 
@@ -103,7 +106,7 @@ def edit_user(current_user: User,
             to_edit.username = new_username
             
         if new_email != None:
-            to_edit.email = new_email
+            to_edit.email = new_email.lower()
         
         if new_password != None:
             to_edit.password = argon2.hash(new_password.get_secret_value())
@@ -132,7 +135,7 @@ def get_user_by_id(target_id):
   
 
 def get_user_by_email(email: str):
-    stmt = select(User).where(User.email == email)
+    stmt = select(User).where(User.email == email.lower())
     with get_session() as session:
         user = session.scalar(stmt)
         
