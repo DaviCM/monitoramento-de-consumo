@@ -25,7 +25,7 @@ www.liquamonitor.dev {
 		X-Robots-Tag "noindex, nofollow"
 	}
 	handle {
-		redir https://{$BACKEND_MAIN_URL}{uri} 308
+		reverse_proxy https://{$BACKEND_MAIN_URL}{uri}
 	}
 }
 
@@ -34,7 +34,7 @@ www.liquamonitor.dev {
 		X-Robots-Tag "noindex, nofollow"
 	}
 	handle {
-		redir https://{$BACKEND_MAIN_URL}{uri} 308
+		reverse_proxy https://{$BACKEND_MAIN_URL}{uri}
 	}
 }
 
