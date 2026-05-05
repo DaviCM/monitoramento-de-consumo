@@ -37,7 +37,11 @@ def create_user(params: UserSchema):
     if password_validators.verify_password(params.password.get_secret_value()) == False:
         raise InvalidPasswordError
     
-    new_user = User(**(params.model_dump()))
+    new_user = User(real_name=params.real_name,
+                    username=params.username,
+                    email=params.email,
+                    password=argon2.hash(params.password.get_secret_value())
+                    )
 
     with get_session() as session:
         session.add(new_user)
