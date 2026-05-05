@@ -26,7 +26,7 @@ class ResponseConsumptionSchema(BaseModel):
     model_config = (ConfigDict(from_attributes=True))
     
     id: int
-    description: str
+    description: Optional[str] = None
     starting_date: date
     ending_date: date
     si_measurement_unit: str
