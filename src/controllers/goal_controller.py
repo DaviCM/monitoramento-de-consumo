@@ -65,7 +65,7 @@ def get_user_goals(current_user: User, params: QueryGoalSchema):
     if params.ending_date != None:
         stmt = stmt.where(Goal.ending_date <= params.ending_date)
         
-    if params.value != None:
+    if params.minimum_value != None:
         stmt = stmt.where(Goal.value >= params.minimum_value)
         
     if params.maximum_value != None:
